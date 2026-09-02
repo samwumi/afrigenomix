@@ -30,6 +30,16 @@ Afrigenomix is a **testing access and coordination platform**, not a laboratory.
 - Appointment scheduling
 - Secure result delivery
 
+### Content & Advocacy
+- Blog platform with 7 categories (DNA Testing, Immigration, Paternity, Legal, Prenatal, Genetics, DNA Science)
+- Featured articles and related content
+- Social sharing (Facebook, Twitter, LinkedIn)
+- View counter and engagement tracking
+- Advocacy hub for campaigns (e.g., Criminalize Paternity Fraud)
+- Campaign milestones and progress tracking
+- Petition signatures and supporter engagement
+- Campaign updates and timeline
+
 ### For Partners
 - Collection Partner Portal
 - Laboratory Partner Portal
@@ -44,7 +54,13 @@ Afrigenomix is a **testing access and coordination platform**, not a laboratory.
 - Laboratory network management
 - Quote and payment management
 - Audit logging
-- Content management (articles, FAQs)
+- Content Management System (CMS)
+  - Create, edit, and delete articles
+  - Manage featured content
+  - View analytics (views, engagement)
+  - Category management
+  - SEO optimization
+- Advocacy campaign management
 
 ## Tech Stack
 
@@ -67,7 +83,7 @@ Afrigenomix is a **testing access and coordination platform**, not a laboratory.
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/your-org/afrigenomix.git
+git clone https://github.com/samwumi/afrigenomix.git
 cd afrigenomix
 ```
 
@@ -146,8 +162,23 @@ The application uses a comprehensive relational database schema including:
 - **Samples:** Sample tracking and chain of custody
 - **Quotes & Payments:** Financial management
 - **Results:** Secure result delivery
-- **Content:** Articles, FAQs, knowledge base
+- **Content Management:** Articles, authors, advocacy campaigns, newsletters
 - **Audit Logs:** Complete activity tracking
+
+## SEO & Discoverability
+
+Afrigenomix is fully optimized for search engines:
+
+- Dynamic meta tags (title, description, keywords)
+- Open Graph tags for social sharing (Facebook, LinkedIn)
+- Twitter Card support
+- Structured data (JSON-LD Article schema)
+- XML sitemap at `/sitemap.xml`
+- Robots.txt configuration
+- Canonical URLs on all pages
+- Optimized for keywords: DNA testing Nigeria, paternity test Africa, immigration DNA, etc.
+
+See [`SEO-IMPLEMENTATION.md`](./SEO-IMPLEMENTATION.md) for complete SEO documentation.
 
 ## Key Workflows
 
@@ -200,22 +231,79 @@ npx tsc --noEmit
 
 ## Deployment
 
-### Production Checklist
+### Hostinger Cloud Startup Deployment
 
-- [ ] Set strong JWT_SECRET and NEXTAUTH_SECRET
-- [ ] Configure production database
-- [ ] Set up email provider
-- [ ] Configure payment provider
-- [ ] Enable HTTPS
-- [ ] Set up file storage (S3, etc.)
-- [ ] Configure CORS properly
-- [ ] Set up monitoring and logging
-- [ ] Configure backup strategy
-- [ ] Review security settings
+This project is configured for deployment on Hostinger Cloud Startup. See comprehensive deployment guides:
 
-### Environment Variables
+- **Quick Start:** [`QUICK_START_HOSTINGER.md`](./QUICK_START_HOSTINGER.md) - Get up and running in 15 minutes
+- **Detailed Guide:** [`HOSTINGER_DEPLOYMENT.md`](./HOSTINGER_DEPLOYMENT.md) - Complete deployment documentation
+- **Checklist:** [`DEPLOYMENT_CHECKLIST.md`](./DEPLOYMENT_CHECKLIST.md) - Step-by-step verification
 
-See `.env.example` for required variables.
+### Required Environment Variables
+
+The application requires these environment variables for production:
+
+```env
+# Database (PostgreSQL on Hostinger)
+DATABASE_URL="postgresql://user:password@localhost:5432/afrigenomix_prod"
+
+# Authentication (generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))")
+JWT_SECRET="your-secure-32-char-jwt-secret"
+NEXTAUTH_SECRET="your-secure-32-char-nextauth-secret"
+
+# Application
+NODE_ENV="production"
+NEXT_PUBLIC_APP_URL="https://afrigenomix.com"
+
+# File Uploads
+UPLOAD_DIR="/home/username/uploads"
+MAX_FILE_SIZE="10485760"
+
+# Email (Hostinger SMTP)
+EMAIL_FROM="noreply@afrigenomix.com"
+EMAIL_HOST="smtp.hostinger.com"
+EMAIL_PORT="465"
+EMAIL_USER="noreply@afrigenomix.com"
+EMAIL_PASSWORD="your-email-password"
+EMAIL_SECURE="true"
+
+# Payment (Paystack for Nigeria)
+PAYSTACK_SECRET_KEY="sk_live_your_key_here"
+PAYSTACK_PUBLIC_KEY="pk_live_your_key_here"
+```
+
+See [`.env.production.example`](./.env.production.example) for the complete template.
+
+### Production Deployment Steps
+
+1. **Set up PostgreSQL database** on Hostinger
+2. **Generate secure secrets** for JWT_SECRET and NEXTAUTH_SECRET
+3. **Clone repository** to your Hostinger server
+4. **Install dependencies:** `npm install`
+5. **Create `.env` file** with production values
+6. **Run migrations:** `npx prisma migrate deploy`
+7. **Seed database:** `npx prisma db seed`
+8. **Build application:** `npm run build`
+9. **Start with PM2:** `pm2 start npm --name "afrigenomix" -- start`
+10. **Configure reverse proxy** in Hostinger panel (port 3000)
+11. **Enable SSL certificate** (Let's Encrypt)
+
+### Demo Accounts (Change passwords immediately in production!)
+
+After seeding, these accounts are available:
+- **Admin:** admin@afrigenomix.com / Password123!
+- **Customer:** john.doe@example.com / Password123!
+- **Lab Partner:** lab@genetech.ng / Password123!
+- **Collection Partner:** collection@medcenter.ng / Password123!
+
+### Post-Deployment
+
+- ✅ Change all default passwords
+- ✅ Configure email provider
+- ✅ Set up Paystack for payments
+- ✅ Test RBAC and security
+- ✅ Submit sitemap to Google Search Console
+- ✅ Set up monitoring and backups
 
 ## Contributing
 
