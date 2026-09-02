@@ -1,0 +1,758 @@
+// Afrigenomix Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+enum Role {
+  CUSTOMER
+  COLLECTION_PARTNER
+  LAB_PARTNER
+  ADMIN
+  SUPER_ADMIN
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(CUSTOMER)
+  isActive      Boolean   @default(true)
+  emailVerified Boolean   @default(false)
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  customerProfile       CustomerProfile?
+  collectionPartner     CollectionPartner?
+  labPartner            LabPartner?
+  sessions              Session[]
+  auditLogs             AuditLog[]
+  notifications         Notification[]
+  messages              Message[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model CustomerProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  fullName  String
+  country   String
+  address   String?
+  city      String?
+  state     String?
+  postalCode String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cases Case[]
+
+  @@map("customer_profiles")
+}
+
+// ============================================
+// LABORATORY NETWORK
+// ============================================
+
+enum LaboratoryStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_VERIFICATION
+}
+
+model Laboratory {
+  id            String            @id @default(uuid())
+  name          String
+  country       String
+  city          String?
+  address       String?
+  phone         String?
+  email         String?
+  website       String?
+  status        LaboratoryStatus  @default(PENDING_VERIFICATION)
+  capabilities  String?           // JSON string of test types array
+  description   String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  // Relations
+  accreditations LaboratoryAccreditation[]
+  cases          Case[]
+  labPartners    LabPartner[]
+
+  @@map("laboratories")
+}
+
+model LaboratoryAccreditation {
+  id                  String   @id @default(uuid())
+  laboratoryId        String
+  accreditationType   String   // e.g., "ISO 17025", "AABB"
+  accreditationBody   String   // e.g., "UKAS", "AABB"
+  accreditationNumber String?
+  issuedDate          DateTime?
+  expiryDate          DateTime?
+  verified            Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  laboratory Laboratory @relation(fields: [laboratoryId], references: [id], onDelete: Cascade)
+
+  @@map("laboratory_accreditations")
+}
+
+model LabPartner {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  laboratoryId String
+  fullName     String
+  position     String?
+  phone        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  laboratory Laboratory @relation(fields: [laboratoryId], references: [id], onDelete: Cascade)
+
+  @@map("lab_partners")
+}
+
+// ============================================
+// COLLECTION PARTNERS
+// ============================================
+
+model CollectionPartner {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  name        String
+  country     String
+  city        String?
+  address     String?
+  phone       String?
+  email       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  locations    CollectionLocation[]
+  appointments Appointment[]
+
+  @@map("collection_partners")
+}
+
+model CollectionLocation {
+  id                  String   @id @default(uuid())
+  collectionPartnerId String
+  name                String
+  country             String
+  city                String
+  address             String
+  phone               String?
+  operatingHours      String?
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  collectionPartner CollectionPartner @relation(fields: [collectionPartnerId], references: [id], onDelete: Cascade)
+  appointments      Appointment[]
+
+  @@map("collection_locations")
+}
+
+// ============================================
+// TEST CATALOGUE
+// ============================================
+
+enum TestCategory {
+  PATERNITY
+  MATERNITY
+  SIBLING
+  GRANDPARENT
+  IMMIGRATION
+  LEGAL
+  PRENATAL
+  GENETIC
+  OTHER
+}
+
+model TestType {
+  id                String        @id @default(uuid())
+  name              String
+  slug              String        @unique
+  category          TestCategory
+  description       String?
+  requirements      String?       // JSON or text
+  sampleType        String?       // e.g., "Buccal swab", "Blood"
+  isLegal           Boolean       @default(false)
+  chainOfCustody    Boolean       @default(false)
+  turnaroundDays    Int?
+  price             Decimal?
+  currency          String?       @default("NGN")
+  isActive          Boolean       @default(true)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  cases Case[]
+
+  @@map("test_types")
+}
+
+// ============================================
+// CASES & PARTICIPANTS
+// ============================================
+
+enum CaseStatus {
+  PENDING
+  DOCUMENTS_SUBMITTED
+  DOCUMENTS_VERIFIED
+  AWAITING_COLLECTION
+  COLLECTION_SCHEDULED
+  COLLECTION_COMPLETED
+  SAMPLE_IN_TRANSIT
+  SAMPLE_RECEIVED
+  TESTING_IN_PROGRESS
+  QUALITY_REVIEW
+  RESULT_READY
+  RESULT_RELEASED
+  COMPLETED
+  CANCELLED
+}
+
+model Case {
+  id               String      @id @default(uuid())
+  caseNumber       String      @unique // AFG-YYYY-XXXXXX
+  customerId       String
+  testTypeId       String
+  laboratoryId     String?
+  status           CaseStatus  @default(PENDING)
+  purpose          String?     // "Personal", "Legal", "Immigration"
+  country          String
+  notes            String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  customer      CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  testType      TestType        @relation(fields: [testTypeId], references: [id])
+  laboratory    Laboratory?     @relation(fields: [laboratoryId], references: [id])
+  
+  participants  Participant[]
+  documents     Document[]
+  appointments  Appointment[]
+  samples       Sample[]
+  quotes        Quote[]
+  payments      Payment[]
+  results       Result[]
+  timeline      CaseTimeline[]
+
+  @@map("cases")
+}
+
+model Participant {
+  id           String   @id @default(uuid())
+  caseId       String
+  fullName     String
+  relationship String   // "Father", "Child", "Mother", etc.
+  dateOfBirth  DateTime?
+  country      String?
+  city         String?
+  phone        String?
+  email        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  case      Case       @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  documents Document[]
+  samples   Sample[]
+
+  @@map("participants")
+}
+
+// ============================================
+// DOCUMENTS
+// ============================================
+
+enum DocumentType {
+  PASSPORT
+  NATIONAL_ID
+  BIRTH_CERTIFICATE
+  IMMIGRATION_DOCUMENT
+  COLLECTION_FORM
+  CONSENT_FORM
+  OTHER
+}
+
+enum DocumentStatus {
+  PENDING
+  UPLOADED
+  VERIFIED
+  REJECTED
+}
+
+model Document {
+  id            String         @id @default(uuid())
+  caseId        String
+  participantId String?
+  type          DocumentType
+  fileName      String
+  filePath      String
+  fileSize      Int
+  mimeType      String
+  status        DocumentStatus @default(UPLOADED)
+  uploadedAt    DateTime       @default(now())
+  verifiedAt    DateTime?
+  verifiedBy    String?
+  rejectionReason String?
+  updatedAt     DateTime       @updatedAt
+
+  case        Case         @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  participant Participant? @relation(fields: [participantId], references: [id])
+
+  @@map("documents")
+}
+
+// ============================================
+// APPOINTMENTS & COLLECTION
+// ============================================
+
+enum AppointmentStatus {
+  REQUESTED
+  CONFIRMED
+  RESCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model Appointment {
+  id                    String            @id @default(uuid())
+  caseId                String
+  collectionPartnerId   String?
+  collectionLocationId  String?
+  appointmentDate       DateTime
+  appointmentTime       String
+  status                AppointmentStatus @default(REQUESTED)
+  notes                 String?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  case               Case                @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  collectionPartner  CollectionPartner?  @relation(fields: [collectionPartnerId], references: [id])
+  collectionLocation CollectionLocation? @relation(fields: [collectionLocationId], references: [id])
+
+  @@map("appointments")
+}
+
+// ============================================
+// SAMPLES
+// ============================================
+
+enum SampleStatus {
+  COLLECTION_SCHEDULED
+  COLLECTED
+  PREPARED_FOR_SHIPMENT
+  IN_TRANSIT
+  RECEIVED_BY_LAB
+  ACCEPTED
+  REJECTED
+  TESTING
+  COMPLETED
+}
+
+model Sample {
+  id            String       @id @default(uuid())
+  caseId        String
+  participantId String
+  sampleId      String       @unique // Lab-specific sample ID
+  sampleType    String       // "Buccal swab", "Blood", etc.
+  status        SampleStatus @default(COLLECTION_SCHEDULED)
+  collectedAt   DateTime?
+  receivedAt    DateTime?
+  notes         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  case        Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  participant Participant @relation(fields: [participantId], references: [id])
+
+  @@map("samples")
+}
+
+// ============================================
+// QUOTATIONS & PAYMENTS
+// ============================================
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
+model Quote {
+  id            String      @id @default(uuid())
+  caseId        String
+  amount        Decimal
+  currency      String      @default("NGN")
+  testFee       Decimal?
+  collectionFee Decimal?
+  courierFee    Decimal?
+  otherFees     Decimal?
+  status        QuoteStatus @default(DRAFT)
+  validUntil    DateTime?
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@map("quotes")
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESSFUL
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  caseId            String
+  amount            Decimal
+  currency          String        @default("NGN")
+  paymentReference  String        @unique
+  paymentProvider   String?
+  status            PaymentStatus @default(PENDING)
+  transactionDate   DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+// ============================================
+// RESULTS
+// ============================================
+
+enum ResultStatus {
+  PENDING
+  PROCESSING
+  QUALITY_REVIEW
+  READY
+  RELEASED
+  SUPERSEDED
+}
+
+model Result {
+  id          String       @id @default(uuid())
+  caseId      String
+  fileName    String
+  filePath    String
+  fileSize    Int
+  mimeType    String
+  status      ResultStatus @default(PENDING)
+  uploadedAt  DateTime     @default(now())
+  releasedAt  DateTime?
+  releasedBy  String?
+  updatedAt   DateTime     @updatedAt
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@map("results")
+}
+
+// ============================================
+// CASE TIMELINE
+// ============================================
+
+model CaseTimeline {
+  id          String   @id @default(uuid())
+  caseId      String
+  event       String   // "Case created", "Documents verified", etc.
+  description String?
+  performedBy String?
+  createdAt   DateTime @default(now())
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@map("case_timeline")
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+enum NotificationType {
+  EMAIL
+  SMS
+  IN_APP
+  WHATSAPP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  READ
+}
+
+model Notification {
+  id        String             @id @default(uuid())
+  userId    String
+  type      NotificationType
+  status    NotificationStatus @default(PENDING)
+  subject   String
+  message   String
+  sentAt    DateTime?
+  readAt    DateTime?
+  createdAt DateTime           @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+// ============================================
+// MESSAGING
+// ============================================
+
+model Message {
+  id        String   @id @default(uuid())
+  userId    String
+  subject   String
+  message   String
+  isRead    Boolean  @default(false)
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+// ============================================
+// CONTENT MANAGEMENT & ADVOCACY
+// ============================================
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ArticleCategory {
+  DNA_EDUCATION
+  PATERNITY_TESTING
+  IMMIGRATION_DNA
+  LEGAL_DNA
+  ADVOCACY
+  PATERNITY_FRAUD
+  LEGISLATION
+  CASE_STUDIES
+  SCIENCE
+  NEWS
+}
+
+model ContentAuthor {
+  id          String   @id @default(uuid())
+  name        String
+  title       String?  // "DNA Expert", "Advocacy Director", etc.
+  bio         String?
+  avatar      String?
+  email       String?
+  social      String?  // JSON: {facebook, twitter, linkedin, instagram}
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  articles Article[]
+
+  @@map("content_authors")
+}
+
+model Article {
+  id              String          @id @default(uuid())
+  title           String
+  slug            String          @unique
+  content         String          // Rich text/markdown
+  excerpt         String?
+  category        ArticleCategory
+  authorId        String?
+  featuredImage   String?
+  status          ArticleStatus   @default(DRAFT)
+  isFeatured      Boolean         @default(false)
+  viewCount       Int             @default(0)
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+  
+  // Social
+  ogImage         String?
+  
+  publishedAt     DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  author ContentAuthor? @relation(fields: [authorId], references: [id])
+  tags   ArticleTag[]
+
+  @@map("articles")
+}
+
+model ArticleTag {
+  id        String   @id @default(uuid())
+  articleId String
+  tag       String   // "paternity fraud", "nigeria legislation", etc.
+  createdAt DateTime @default(now())
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@map("article_tags")
+}
+
+enum CampaignStatus {
+  PLANNING
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+model AdvocacyCampaign {
+  id                String         @id @default(uuid())
+  title             String
+  slug              String         @unique
+  description       String
+  longDescription   String?        // Full campaign details
+  goal              String         // e.g., "Criminalize Paternity Fraud in Nigeria"
+  targetCountries   String         // JSON array: ["Nigeria", "Ghana", "Kenya"]
+  
+  // Campaign metrics
+  signatureGoal     Int?           // For petitions
+  currentSignatures Int            @default(0)
+  
+  // Content
+  bannerImage       String?
+  videoUrl          String?
+  
+  // Status
+  status            CampaignStatus @default(PLANNING)
+  priority          Int            @default(0)
+  
+  // Dates
+  launchDate        DateTime?
+  targetDate        DateTime?      // When you aim to achieve the goal
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  milestones CampaignMilestone[]
+  updates    CampaignUpdate[]
+
+  @@map("advocacy_campaigns")
+}
+
+model CampaignMilestone {
+  id          String   @id @default(uuid())
+  campaignId  String
+  title       String   // "Bill drafted", "Petition submitted", etc.
+  description String?
+  isCompleted Boolean  @default(false)
+  completedAt DateTime?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  campaign AdvocacyCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("campaign_milestones")
+}
+
+model CampaignUpdate {
+  id          String   @id @default(uuid())
+  campaignId  String
+  title       String
+  content     String
+  image       String?
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  campaign AdvocacyCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@map("campaign_updates")
+}
+
+model Newsletter {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  name        String?
+  isActive    Boolean  @default(true)
+  subscribedAt DateTime @default(now())
+  unsubscribedAt DateTime?
+
+  @@map("newsletter_subscribers")
+}
+
+model FAQ {
+  id        String   @id @default(uuid())
+  category  String
+  question  String
+  answer    String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("faqs")
+}
+
+// ============================================
+// AUDIT LOG
+// ============================================
+
+model AuditLog {
+  id             String   @id @default(uuid())
+  userId         String?
+  action         String   // "LOGIN", "DOCUMENT_UPLOADED", etc.
+  resourceType   String?  // "Case", "Document", etc.
+  resourceId     String?
+  previousValue  String?
+  newValue       String?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
