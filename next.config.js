@@ -1,20 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Use standalone output for better compatibility with various hosting environments
+  // Use standalone output for better compatibility with Hostinger
   output: 'standalone',
-  
-  // Disable SWC minification if it causes issues, use Terser instead
-  swcMinify: false,
-  
-  // Experimental features
-  experimental: {
-    // Use Turbopack for faster builds (optional, can be disabled if issues)
-    turbo: {},
-  },
   
   // Image optimization
   images: {
-    domains: ['afrigenomix.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'afrigenomix.com',
+      },
+    ],
   },
   
   // Environment variables that should be available on the client
