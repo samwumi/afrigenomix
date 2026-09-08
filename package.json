@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "prisma generate && prisma db push && next build --webpack",
     "start": "next start",
+    "postbuild": "npm run db:seed || echo 'Seeding skipped'",
     "lint": "eslint",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
