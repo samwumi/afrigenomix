@@ -32,6 +32,10 @@ export default function NewArticlePage() {
     metaDescription: '',
     status: 'DRAFT',
     isFeatured: false,
+    authorName: '',
+    authorTitle: '',
+    authorBio: '',
+    authorEmail: '',
   });
 
   const generateSlug = (title: string) => {
@@ -254,6 +258,71 @@ And much more!"
                       />
                       <p className="text-sm text-gray-600 mt-1">
                         {formData.metaDescription.length}/160 characters
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* Author Information */}
+                <Card>
+                  <div className="p-6 space-y-4">
+                    <h3 className="text-lg font-bold text-navy-900">Author Information</h3>
+                    
+                    <div>
+                      <label className="block text-sm font-semibold text-navy-900 mb-2">
+                        Author Name
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.authorName}
+                        onChange={(e) => setFormData({ ...formData, authorName: e.target.value })}
+                        placeholder="e.g., Dr. Samuel Wumi"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      />
+                      <p className="text-sm text-gray-600 mt-1">
+                        Leave blank to use default author
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-navy-900 mb-2">
+                        Author Title/Role
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.authorTitle}
+                        onChange={(e) => setFormData({ ...formData, authorTitle: e.target.value })}
+                        placeholder="e.g., Chief Genetics Counselor"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-navy-900 mb-2">
+                        Author Bio
+                      </label>
+                      <textarea
+                        value={formData.authorBio}
+                        onChange={(e) => setFormData({ ...formData, authorBio: e.target.value })}
+                        placeholder="Brief bio about the author..."
+                        rows={3}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-navy-900 mb-2">
+                        Author Email
+                      </label>
+                      <input
+                        type="email"
+                        value={formData.authorEmail}
+                        onChange={(e) => setFormData({ ...formData, authorEmail: e.target.value })}
+                        placeholder="author@afrigenomix.com"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      />
+                      <p className="text-sm text-gray-600 mt-1">
+                        For internal use only
                       </p>
                     </div>
                   </div>

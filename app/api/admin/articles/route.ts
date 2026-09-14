@@ -160,6 +160,10 @@ export async function POST(request: NextRequest) {
       isFeatured,
       publishedAt,
       authorId,
+      authorName,
+      authorTitle,
+      authorBio,
+      authorEmail,
     } = body;
 
     // Validate required fields
@@ -185,24 +189,44 @@ export async function POST(request: NextRequest) {
     // If no authorId provided, find or create a default ContentAuthor
     let finalAuthorId = authorId;
     if (!finalAuthorId) {
-      // Try to find an existing content author
-      let contentAuthor = await prisma.contentAuthor.findFirst({
-        where: { email: 'admin@afrigenomix.com' },
-      });
-
-      // If no content author exists, create one
-      if (!contentAuthor) {
-        contentAuthor = await prisma.contentAuthor.create({
-          data: {
-            name: 'Afrigenomix Editorial Team',
-            title: 'Content Editor',
-            bio: 'The Afrigenomix editorial team is dedicated to providing accurate, science-based information about DNA testing and genomics in Africa.',
-            email: 'admin@afrigenomix.com',
-          },
+      // If author details provided, create or find author by email
+      if (authorName && authorEmail) {
+        let contentAuthor = await prisma.contentAuthor.findFirst({
+          where: { email: authorEmail },
         });
-      }
 
-      finalAuthorId = contentAuthor.id;
+        if (!contentAuthor) {
+          contentAuthor = await prisma.contentAuthor.create({
+            data: {
+              name: authorName,
+              title: authorTitle || 'Content Writer',
+              bio: authorBio || `${authorName} is a contributor to Afrigenomix.`,
+              email: authorEmail,
+            },
+          });
+        }
+
+        finalAuthorId = contentAuthor.id;
+      } else {
+        // No author info provided, use default
+        let contentAuthor = await prisma.contentAuthor.findFirst({
+          where: { email: 'admin@afrigenomix.com' },
+        });
+
+        // If no default content author exists, create one
+        if (!contentAuthor) {
+          contentAuthor = await prisma.contentAuthor.create({
+            data: {
+              name: 'Afrigenomix Editorial Team',
+              title: 'Content Editor',
+              bio: 'The Afrigenomix editorial team is dedicated to providing accurate, science-based information about DNA testing and genomics in Africa.',
+              email: 'admin@afrigenomix.com',
+            },
+          });
+        }
+
+        finalAuthorId = contentAuthor.id;
+      }
     }
 
     // Create article
