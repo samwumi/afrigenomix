@@ -10,7 +10,7 @@ const articles = [
     title: 'Understanding DNA Paternity Testing in Africa',
     slug: 'understanding-dna-paternity-testing-africa',
     excerpt: 'A comprehensive guide to DNA paternity testing in Africa, including types of tests, processes, costs, and legal considerations for Nigerian families.',
-    category: 'DNA_EDUCATION',
+    category: 'DNA_EDUCATION' as const,
     content: fs.readFileSync(
       path.join(__dirname, '..', 'BLOG_SAMPLE_ARTICLE.md'),
       'utf-8'
@@ -23,7 +23,7 @@ const articles = [
     title: 'Paternity Fraud: The Silent Crisis Affecting Nigerian Families',
     slug: 'paternity-fraud-silent-crisis-nigeria',
     excerpt: 'Exploring the prevalence of paternity fraud in Nigeria, its emotional and financial impact, and why mandatory DNA testing could be the solution.',
-    category: 'PATERNITY_FRAUD',
+    category: 'PATERNITY_FRAUD' as const,
     content: `# Paternity Fraud: The Silent Crisis Affecting Nigerian Families
 
 ## The Hidden Reality
@@ -67,7 +67,7 @@ Together, we can end paternity fraud in Nigeria.`,
     title: 'Immigration DNA Testing: Requirements for Nigerian Visa Applications',
     slug: 'immigration-dna-testing-nigerian-visa',
     excerpt: 'Everything you need to know about DNA testing for UK, USA, and Canadian visa applications from Nigeria, including requirements and accredited laboratories.',
-    category: 'IMMIGRATION_DNA',
+    category: 'IMMIGRATION_DNA' as const,
     content: `# Immigration DNA Testing: Requirements for Nigerian Visa Applications
 
 ## When is DNA Testing Required?
@@ -143,7 +143,7 @@ Contact us for immigration DNA testing assistance.`,
     title: 'Legal DNA Testing vs Peace of Mind Testing: Which Do You Need?',
     slug: 'legal-dna-vs-peace-of-mind-testing',
     excerpt: 'Understanding the differences between legal DNA tests and peace of mind tests, including accuracy, cost, process, and when each type is appropriate.',
-    category: 'LEGAL_DNA',
+    category: 'LEGAL_DNA' as const,
     content: `# Legal DNA Testing vs Peace of Mind Testing
 
 ## The Key Difference
@@ -243,7 +243,7 @@ Not sure which test you need? Contact our specialists for free consultation.
     title: 'Our Campaign for Mandatory Paternity Testing at Birth in Nigeria',
     slug: 'campaign-mandatory-paternity-testing-nigeria',
     excerpt: 'Join our movement to make DNA paternity testing mandatory at birth in Nigeria. Learn about our legislative goals, petition, and how you can help.',
-    category: 'ADVOCACY',
+    category: 'ADVOCACY' as const,
     content: `# Our Campaign for Mandatory Paternity Testing at Birth
 
 ## The Problem
@@ -371,27 +371,23 @@ async function seedBlog() {
   console.log('Starting blog seed...');
 
   try {
-    // Find or create an admin user to be the author
-    let adminUser = await prisma.user.findFirst({
-      where: { role: 'ADMIN' },
+    // Find or create a content author (not regular user)
+    let author = await prisma.contentAuthor.findFirst({
+      where: { email: 'admin@afrigenomix.com' },
     });
 
-    if (!adminUser) {
-      console.log('No admin user found, creating one...');
-      const bcrypt = require('bcryptjs');
-      const hashedPassword = await bcrypt.hash('Admin@123', 10);
+    if (!author) {
+      console.log('No content author found, creating one...');
 
-      adminUser = await prisma.user.create({
+      author = await prisma.contentAuthor.create({
         data: {
-          email: 'admin@afrigenomix.com',
-          password: hashedPassword,
           name: 'Dr. Sarah Okonkwo',
-          role: 'ADMIN',
           title: 'Chief Genetics Counselor',
           bio: 'Dr. Sarah Okonkwo is a leading genetics counselor with over 15 years of experience in DNA testing and paternity verification. She holds a PhD in Molecular Biology and is passionate about making DNA testing accessible across Africa.',
+          email: 'admin@afrigenomix.com',
         },
       });
-      console.log('Admin user created');
+      console.log('Content author created');
     }
 
     // Create articles
@@ -408,7 +404,7 @@ async function seedBlog() {
       await prisma.article.create({
         data: {
           ...article,
-          authorId: adminUser.id,
+          authorId: author.id,
           status: 'PUBLISHED',
           publishedAt: new Date(),
           viewCount: Math.floor(Math.random() * 500) + 100, // Random view count for demo
@@ -420,7 +416,7 @@ async function seedBlog() {
 
     console.log('\n✅ Blog seed completed successfully!');
     console.log(`📝 Created ${articles.length} articles`);
-    console.log(`👤 Author: ${adminUser.name}`);
+    console.log(`👤 Author: ${author.name}`);
   } catch (error) {
     console.error('❌ Error seeding blog:', error);
     throw error;
