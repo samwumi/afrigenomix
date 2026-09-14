@@ -13,9 +13,6 @@ const nextConfig: NextConfig = {
   // Production optimizations
   compress: true,
   productionBrowserSourceMaps: false,
-  
-  // Use SWC minification (faster, less memory)
-  swcMinify: true,
 };
 
 export default nextConfig;
