@@ -82,7 +82,7 @@ export default function NewArticlePage() {
 
       if (result.success) {
         alert(`Article ${status === 'PUBLISHED' ? 'published' : 'saved as draft'} successfully!`);
-        router.push('/admin/content');
+        router.push('/admin/content?refresh=true');
       } else {
         alert(result.error || 'Failed to create article');
       }
