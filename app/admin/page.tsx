@@ -20,7 +20,8 @@ import {
   ArrowRight,
   Beaker,
   Package,
-  ShieldCheck
+  ShieldCheck,
+  PenSquare
 } from 'lucide-react';
 
 interface DashboardData {
@@ -494,6 +495,12 @@ export default function AdminDashboard() {
                   <h3 className="text-lg font-bold text-navy-900">Quick Actions</h3>
                 </div>
                 <div className="p-6 space-y-2">
+                  <Link href="/admin/content">
+                    <Button variant="outline" size="sm" className="w-full justify-start">
+                      <PenSquare className="w-4 h-4 mr-2" />
+                      Manage Blog Content
+                    </Button>
+                  </Link>
                   <Link href="/admin/cases">
                     <Button variant="outline" size="sm" className="w-full justify-start">
                       <FileText className="w-4 h-4 mr-2" />
