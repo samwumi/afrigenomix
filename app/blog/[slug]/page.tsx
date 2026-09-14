@@ -8,6 +8,10 @@ import { Footer } from '@/components/layout/Footer';
 import { Container } from '@/components/layout/Container';
 import { Card, Badge, Button, Spinner } from '@/components/ui';
 import { SEO } from '@/components/SEO';
+import { MarkdownContent } from '@/components/MarkdownContent';
+import { TableOfContents } from '@/components/TableOfContents';
+import { ReadingProgress } from '@/components/ReadingProgress';
+import { ScrollToTop } from '@/components/ScrollToTop';
 import { 
   ArrowLeft,
   Calendar,
@@ -17,7 +21,9 @@ import {
   Share2,
   Mail,
   BookOpen,
-  TrendingUp
+  TrendingUp,
+  Heart,
+  MessageCircle
 } from 'lucide-react';
 
 interface Article {
@@ -68,6 +74,8 @@ export default function ArticlePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
     if (params.slug) {
@@ -118,6 +126,24 @@ export default function ArticlePage() {
     }
     
     setShowShareMenu(false);
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopySuccess(true);
+      setTimeout(() => {
+        setCopySuccess(false);
+        setShowShareMenu(false);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+    }
+  };
+
+  const toggleLike = () => {
+    setIsLiked(!isLiked);
+    // TODO: Save to database/local storage
   };
 
   if (isLoading) {
@@ -205,6 +231,7 @@ export default function ArticlePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white">
+      <ReadingProgress />
       <SEO
         title={seoTitle}
         description={seoDescription}
@@ -233,7 +260,7 @@ export default function ArticlePage() {
             </Link>
           </div>
 
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             {/* Article Header */}
             <div className="mb-8">
               <Badge className={`${categoryInfo.color} mb-4`}>
@@ -320,6 +347,16 @@ export default function ArticlePage() {
                           <Mail className="w-5 h-5 text-gray-600" />
                           <span>Email</span>
                         </button>
+                        <div className="border-t border-gray-200 my-2"></div>
+                        <button
+                          onClick={copyLink}
+                          className={`w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg transition-colors text-left ${
+                            copySuccess ? 'text-green-600' : 'text-gray-700'
+                          }`}
+                        >
+                          <Share2 className="w-5 h-5" />
+                          <span>{copySuccess ? 'Link Copied!' : 'Copy Link'}</span>
+                        </button>
                       </div>
                     </div>
                   )}
@@ -327,58 +364,97 @@ export default function ArticlePage() {
               </div>
             </div>
 
-            {/* Article Content */}
-            <article className="prose prose-lg max-w-none mb-12">
-              <div 
-                className="article-content text-gray-800 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: article.content.replace(/\n/g, '<br />') }}
-              />
-            </article>
+            {/* Two Column Layout: Content + TOC */}
+            <div className="grid lg:grid-cols-[1fr_300px] gap-8 items-start">
+              {/* Main Content */}
+              <div>
+                {/* Article Content */}
+                <article className="prose prose-lg max-w-none mb-8">
+                  <MarkdownContent content={article.content} />
+                </article>
 
-            {/* Author Bio */}
-            {article.author && article.author.bio && (
-              <Card className="mb-12 bg-gradient-to-br from-teal-50 to-blue-50 border-teal-200">
-                <div className="p-8">
-                  <h3 className="text-xl font-bold text-navy-900 mb-4">About the Author</h3>
-                  <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 bg-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <User className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-bold text-navy-900 text-lg">{article.author.name}</div>
-                      {article.author.title && (
-                        <div className="text-teal-700 font-medium mb-2">{article.author.title}</div>
-                      )}
-                      <p className="text-gray-700">{article.author.bio}</p>
+                {/* Engagement Actions */}
+                <Card className="mb-12 bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-gray-200">
+                  <div className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={toggleLike}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                            isLiked
+                              ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                              : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
+                          }`}
+                        >
+                          <Heart className={`w-5 h-5 ${isLiked ? 'fill-red-700' : ''}`} />
+                          <span>{isLiked ? 'Liked!' : 'Like this article'}</span>
+                        </button>
+
+                        <button className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300 transition-all">
+                          <MessageCircle className="w-5 h-5" />
+                          <span className="hidden sm:inline">Share your thoughts</span>
+                          <span className="sm:hidden">Comment</span>
+                        </button>
+                      </div>
+
+                      <div className="text-sm text-gray-600">
+                        Was this helpful?
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
-            )}
+                </Card>
 
-            {/* Call to Action */}
-            <Card className="mb-12 bg-gradient-to-br from-navy-900 to-teal-900 text-white">
-              <div className="p-8 md:p-12 text-center">
-                <h3 className="text-3xl font-bold mb-4 !text-white">
-                  Need DNA Testing Services?
-                </h3>
-                <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
-                  Get expert guidance and access to trusted laboratories for paternity, immigration, and legal DNA testing
-                </p>
-                <div className="flex flex-wrap gap-4 justify-center">
-                  <Link href="/test-finder">
-                    <Button size="lg" className="bg-white text-navy-900 hover:bg-gray-100">
-                      Find Your Test
-                    </Button>
-                  </Link>
-                  <Link href="/contact">
-                    <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                      Contact a Specialist
-                    </Button>
-                  </Link>
-                </div>
+                {/* Author Bio */}
+                {article.author && article.author.bio && (
+                  <Card className="mb-12 bg-gradient-to-br from-teal-50 to-blue-50 border-teal-200">
+                    <div className="p-8">
+                      <h3 className="text-xl font-bold text-navy-900 mb-4">About the Author</h3>
+                      <div className="flex items-start gap-4">
+                        <div className="w-16 h-16 bg-teal-500 rounded-full flex items-center justify-center flex-shrink-0">
+                          <User className="w-8 h-8 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-bold text-navy-900 text-lg">{article.author.name}</div>
+                          {article.author.title && (
+                            <div className="text-teal-700 font-medium mb-2">{article.author.title}</div>
+                          )}
+                          <p className="text-gray-700">{article.author.bio}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
+                {/* Call to Action */}
+                <Card className="mb-12 bg-gradient-to-br from-navy-900 to-teal-900 text-white">
+                  <div className="p-8 md:p-12 text-center">
+                    <h3 className="text-3xl font-bold mb-4 !text-white">
+                      Need DNA Testing Services?
+                    </h3>
+                    <p className="text-xl text-gray-200 mb-8 max-w-2xl mx-auto">
+                      Get expert guidance and access to trusted laboratories for paternity, immigration, and legal DNA testing
+                    </p>
+                    <div className="flex flex-wrap gap-4 justify-center">
+                      <Link href="/test-finder">
+                        <Button size="lg" className="bg-white text-navy-900 hover:bg-gray-100">
+                          Find Your Test
+                        </Button>
+                      </Link>
+                      <Link href="/contact">
+                        <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+                          Contact a Specialist
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </Card>
               </div>
-            </Card>
+
+              {/* Table of Contents Sidebar */}
+              <aside className="hidden lg:block">
+                <TableOfContents content={article.content} />
+              </aside>
+            </div>
 
             {/* Related Articles */}
             {relatedArticles.length > 0 && (
@@ -426,6 +502,7 @@ export default function ArticlePage() {
         </Container>
       </main>
 
+      <ScrollToTop />
       <Footer />
     </div>
   );

@@ -36,6 +36,7 @@ model Session {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId], map: "sessions_userId_fkey")
   @@map("sessions")
 }
 
@@ -90,6 +91,7 @@ model LaboratoryAccreditation {
   updatedAt           DateTime   @updatedAt
   laboratory          Laboratory @relation(fields: [laboratoryId], references: [id], onDelete: Cascade)
 
+  @@index([laboratoryId], map: "laboratory_accreditations_laboratoryId_fkey")
   @@map("laboratory_accreditations")
 }
 
@@ -105,6 +107,7 @@ model LabPartner {
   laboratory   Laboratory @relation(fields: [laboratoryId], references: [id], onDelete: Cascade)
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([laboratoryId], map: "lab_partners_laboratoryId_fkey")
   @@map("lab_partners")
 }
 
@@ -142,6 +145,7 @@ model CollectionLocation {
   appointments        Appointment[]
   collectionPartner   CollectionPartner @relation(fields: [collectionPartnerId], references: [id], onDelete: Cascade)
 
+  @@index([collectionPartnerId], map: "collection_locations_collectionPartnerId_fkey")
   @@map("collection_locations")
 }
 
@@ -180,9 +184,9 @@ model Case {
   updatedAt    DateTime        @updatedAt
   appointments Appointment[]
   timeline     CaseTimeline[]
+  customer     CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
   laboratory   Laboratory?     @relation(fields: [laboratoryId], references: [id])
   testType     TestType        @relation(fields: [testTypeId], references: [id])
-  customer     CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
   documents    Document[]
   participants Participant[]
   payments     Payment[]
@@ -190,6 +194,9 @@ model Case {
   results      Result[]
   samples      Sample[]
 
+  @@index([customerId], map: "cases_customerId_fkey")
+  @@index([laboratoryId], map: "cases_laboratoryId_fkey")
+  @@index([testTypeId], map: "cases_testTypeId_fkey")
   @@map("cases")
 }
 
@@ -209,6 +216,7 @@ model Participant {
   case         Case       @relation(fields: [caseId], references: [id], onDelete: Cascade)
   samples      Sample[]
 
+  @@index([caseId], map: "participants_caseId_fkey")
   @@map("participants")
 }
 
@@ -227,9 +235,11 @@ model Document {
   verifiedBy      String?
   rejectionReason String?
   updatedAt       DateTime       @updatedAt
-  participant     Participant?   @relation(fields: [participantId], references: [id])
   case            Case           @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  participant     Participant?   @relation(fields: [participantId], references: [id])
 
+  @@index([caseId], map: "documents_caseId_fkey")
+  @@index([participantId], map: "documents_participantId_fkey")
   @@map("documents")
 }
 
@@ -244,10 +254,13 @@ model Appointment {
   notes                String?
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
+  case                 Case                @relation(fields: [caseId], references: [id], onDelete: Cascade)
   collectionLocation   CollectionLocation? @relation(fields: [collectionLocationId], references: [id])
   collectionPartner    CollectionPartner?  @relation(fields: [collectionPartnerId], references: [id])
-  case                 Case                @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
+  @@index([caseId], map: "appointments_caseId_fkey")
+  @@index([collectionLocationId], map: "appointments_collectionLocationId_fkey")
+  @@index([collectionPartnerId], map: "appointments_collectionPartnerId_fkey")
   @@map("appointments")
 }
 
@@ -263,9 +276,11 @@ model Sample {
   notes         String?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
-  participant   Participant  @relation(fields: [participantId], references: [id])
   case          Case         @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  participant   Participant  @relation(fields: [participantId], references: [id])
 
+  @@index([caseId], map: "samples_caseId_fkey")
+  @@index([participantId], map: "samples_participantId_fkey")
   @@map("samples")
 }
 
@@ -285,6 +300,7 @@ model Quote {
   updatedAt     DateTime    @updatedAt
   case          Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
+  @@index([caseId], map: "quotes_caseId_fkey")
   @@map("quotes")
 }
 
@@ -301,6 +317,7 @@ model Payment {
   updatedAt        DateTime      @updatedAt
   case             Case          @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
+  @@index([caseId], map: "payments_caseId_fkey")
   @@map("payments")
 }
 
@@ -318,6 +335,7 @@ model Result {
   updatedAt  DateTime     @updatedAt
   case       Case         @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
+  @@index([caseId], map: "results_caseId_fkey")
   @@map("results")
 }
 
@@ -330,6 +348,7 @@ model CaseTimeline {
   createdAt   DateTime @default(now())
   case        Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
+  @@index([caseId], map: "case_timeline_caseId_fkey")
   @@map("case_timeline")
 }
 
@@ -345,6 +364,7 @@ model Notification {
   createdAt DateTime           @default(now())
   user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId], map: "notifications_userId_fkey")
   @@map("notifications")
 }
 
@@ -358,6 +378,7 @@ model Message {
   createdAt DateTime  @default(now())
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId], map: "messages_userId_fkey")
   @@map("messages")
 }
 
@@ -399,6 +420,7 @@ model Article {
   tags            ArticleTag[]
   author          ContentAuthor?  @relation(fields: [authorId], references: [id])
 
+  @@index([authorId], map: "articles_authorId_fkey")
   @@map("articles")
 }
 
@@ -409,6 +431,7 @@ model ArticleTag {
   createdAt DateTime @default(now())
   article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
+  @@index([articleId], map: "article_tags_articleId_fkey")
   @@map("article_tags")
 }
 
@@ -448,6 +471,7 @@ model CampaignMilestone {
   updatedAt   DateTime         @updatedAt
   campaign    AdvocacyCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
+  @@index([campaignId], map: "campaign_milestones_campaignId_fkey")
   @@map("campaign_milestones")
 }
 
@@ -461,6 +485,7 @@ model CampaignUpdate {
   createdAt   DateTime         @default(now())
   campaign    AdvocacyCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
 
+  @@index([campaignId], map: "campaign_updates_campaignId_fkey")
   @@map("campaign_updates")
 }
 
@@ -501,6 +526,7 @@ model AuditLog {
   createdAt     DateTime @default(now())
   user          User?    @relation(fields: [userId], references: [id])
 
+  @@index([userId], map: "audit_logs_userId_fkey")
   @@map("audit_logs")
 }
 

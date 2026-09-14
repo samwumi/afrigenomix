@@ -1,27 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAuth } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 /**
  * PATCH /api/admin/articles/[id]/featured
- * Toggle article featured status
+ * Toggle featured status of an article
  */
 export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Verify authentication and admin role
-    const authResult = await verifyAuth(request);
-    if (!authResult.authenticated || !authResult.user) {
+    // Verify authentication
+    const token = request.headers.get('authorization')?.replace('Bearer ', '');
+    if (!token) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
-    const { user } = authResult;
-    if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') {
+    let userId: string;
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+      userId = decoded.userId;
+    } catch (error) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid token' },
+        { status: 401 }
+      );
+    }
+
+    // Verify user is admin
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+
+    if (!user || (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN')) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },
         { status: 403 }
@@ -32,41 +50,25 @@ export async function PATCH(
     const body = await request.json();
     const { isFeatured } = body;
 
-    // If setting as featured, unfeatured other articles in same category
-    if (isFeatured) {
-      const article = await prisma.article.findUnique({
-        where: { id },
-        select: { category: true },
-      });
-
-      if (article) {
-        await prisma.article.updateMany({
-          where: {
-            category: article.category,
-            isFeatured: true,
-            id: { not: id },
-          },
-          data: {
-            isFeatured: false,
-          },
-        });
-      }
+    if (typeof isFeatured !== 'boolean') {
+      return NextResponse.json(
+        { success: false, error: 'isFeatured must be a boolean' },
+        { status: 400 }
+      );
     }
 
     // Update article
-    const updatedArticle = await prisma.article.update({
+    const article = await prisma.article.update({
       where: { id },
-      data: {
-        isFeatured,
-      },
+      data: { isFeatured },
     });
 
     return NextResponse.json({
       success: true,
-      data: updatedArticle,
+      data: { article },
     });
   } catch (error) {
-    console.error('Article update error:', error);
+    console.error('Featured toggle error:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to update article' },
       { status: 500 }
