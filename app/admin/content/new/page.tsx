@@ -357,7 +357,7 @@ And much more!"
                       <li>• [text](url) for links</li>
                       <li>• ![alt](url) for images</li>
                       <li>• ``` for code blocks</li>
-                      <li>• > for blockquotes</li>
+                      <li>• &gt; for blockquotes</li>
                       <li>• - or * for bullet lists</li>
                       <li>• 1. for numbered lists</li>
                       <li>• | for tables</li>
