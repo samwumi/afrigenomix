@@ -65,6 +65,18 @@ export default function NewArticlePage() {
         return;
       }
 
+      // Auto-generate email if author name provided but email is not
+      let finalFormData = { ...formData };
+      if (formData.authorName && !formData.authorEmail) {
+        // Generate email from name: "Dr Samuel Wumi" -> "dr.samuel.wumi@afrigenomix.com"
+        const emailName = formData.authorName
+          .toLowerCase()
+          .replace(/[^a-z0-9\s]/g, '')
+          .replace(/\s+/g, '.')
+          .substring(0, 50);
+        finalFormData.authorEmail = `${emailName}@afrigenomix.com`;
+      }
+
       const response = await fetch('/api/admin/articles', {
         method: 'POST',
         headers: {
@@ -72,7 +84,7 @@ export default function NewArticlePage() {
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
-          ...formData,
+          ...finalFormData,
           status,
           publishedAt: status === 'PUBLISHED' ? new Date().toISOString() : null,
         }),
@@ -312,17 +324,17 @@ And much more!"
 
                     <div>
                       <label className="block text-sm font-semibold text-navy-900 mb-2">
-                        Author Email
+                        Author Email (Optional)
                       </label>
                       <input
                         type="email"
                         value={formData.authorEmail}
                         onChange={(e) => setFormData({ ...formData, authorEmail: e.target.value })}
-                        placeholder="author@afrigenomix.com"
+                        placeholder="Auto-generated from name if left blank"
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                       />
                       <p className="text-sm text-gray-600 mt-1">
-                        For internal use only
+                        Will be auto-generated from author name (e.g., "Dr Samuel Wumi" → "dr.samuel.wumi@afrigenomix.com")
                       </p>
                     </div>
                   </div>
