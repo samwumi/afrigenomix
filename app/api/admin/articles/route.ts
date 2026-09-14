@@ -159,6 +159,7 @@ export async function POST(request: NextRequest) {
       status,
       isFeatured,
       publishedAt,
+      authorId,
     } = body;
 
     // Validate required fields
@@ -181,6 +182,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // If no authorId provided, find or create a default ContentAuthor
+    let finalAuthorId = authorId;
+    if (!finalAuthorId) {
+      // Try to find an existing content author
+      let contentAuthor = await prisma.contentAuthor.findFirst({
+        where: { email: 'admin@afrigenomix.com' },
+      });
+
+      // If no content author exists, create one
+      if (!contentAuthor) {
+        contentAuthor = await prisma.contentAuthor.create({
+          data: {
+            name: 'Afrigenomix Editorial Team',
+            title: 'Content Editor',
+            bio: 'The Afrigenomix editorial team is dedicated to providing accurate, science-based information about DNA testing and genomics in Africa.',
+            email: 'admin@afrigenomix.com',
+          },
+        });
+      }
+
+      finalAuthorId = contentAuthor.id;
+    }
+
     // Create article
     const article = await prisma.article.create({
       data: {
@@ -194,7 +218,7 @@ export async function POST(request: NextRequest) {
         status: status || 'DRAFT',
         isFeatured: isFeatured || false,
         publishedAt: publishedAt ? new Date(publishedAt) : null,
-        authorId: userId,
+        authorId: finalAuthorId,
       },
     });
 
