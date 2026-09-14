@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 100" fill="none">
+  <!-- AG Monogram -->
+  <g transform="translate(40, 50)">
+    <!-- Letter A - Navy Blue -->
+    <path d="M 0 20 L 15 -20 L 30 20 L 22 20 L 15 0 L 8 20 Z" fill="#0A2540" stroke="#0A2540" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M 11 10 L 19 10" stroke="#0A2540" stroke-width="3" stroke-linecap="round"/>
+    
+    <!-- Letter G - Teal -->
+    <path d="M 45 -15 C 45 -20 48 -23 53 -23 C 58 -23 61 -20 61 -15 L 61 -10 L 56 -10 L 56 -15 C 56 -17 55 -18 53 -18 C 51 -18 50 -17 50 -15 L 50 15 C 50 17 51 18 53 18 L 56 18 L 56 5 L 50 5 L 50 0 L 61 0 L 61 18 C 61 20 58 23 53 23 C 48 23 45 20 45 15 Z" fill="#14B8A6"/>
+    
+    <!-- DNA Helix connecting curve -->
+    <path d="M 30 10 Q 37 5 45 2" stroke="#14B8A6" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.7"/>
+    <path d="M 28 15 Q 35 10 43 7" stroke="#0A2540" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+  </g>
+  
+  <!-- AFRIGENOMIX Text -->
+  <g transform="translate(110, 50)">
+    <text x="0" y="5" font-family="'Arial', 'Helvetica', sans-serif" font-size="28" font-weight="700" letter-spacing="1">
+      <tspan fill="#0A2540">AFRI</tspan>
+      <tspan fill="#14B8A6">GENOMIX</tspan>
+    </text>
+    
+    <!-- Tagline -->
+    <text x="0" y="22" font-family="'Arial', 'Helvetica', sans-serif" font-size="10" letter-spacing="2">
+      <tspan fill="#0A2540">Truth </tspan>
+      <tspan fill="#14B8A6">Through </tspan>
+      <tspan fill="#0A2540">Science</tspan>
+    </text>
+  </g>
+</svg>
