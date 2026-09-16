@@ -57,25 +57,54 @@ export default function HomePage() {
         {/* Hero Section - Clean & Minimal */}
         <section className="py-20 md:py-32">
           <Container>
-            <div className="max-w-4xl mx-auto text-center">
-              <h1 className="text-5xl md:text-7xl font-bold text-navy-900 mb-6 leading-tight">
-                Truth Through Science
-              </h1>
-              <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto">
-                Connect with trusted DNA testing laboratories across Africa for paternity, immigration, and legal testing
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/test-finder">
-                  <Button size="lg" variant="primary" className="text-lg px-8 py-6">
-                    Find Your Test
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                </Link>
-                <Link href="/about">
-                  <Button size="lg" variant="outline" className="text-lg px-8 py-6">
-                    Learn More
-                  </Button>
-                </Link>
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Left: Text Content */}
+              <div>
+                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-navy-900 mb-6 leading-tight">
+                  Truth Through Science
+                </h1>
+                <p className="text-xl md:text-2xl text-gray-600 mb-8">
+                  Connect with trusted DNA testing laboratories across Africa for paternity, immigration, and legal testing
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link href="/test-finder">
+                    <Button size="lg" variant="primary" className="text-lg px-8 py-6 w-full sm:w-auto">
+                      Find Your Test
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
+                  <Link href="/about">
+                    <Button size="lg" variant="outline" className="text-lg px-8 py-6 w-full sm:w-auto">
+                      Learn More
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right: Hero Image */}
+              <div className="relative">
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                  <img 
+                    src="https://images.unsplash.com/photo-1576086213369-97a306d36557?w=800&auto=format&fit=crop&q=80" 
+                    alt="DNA Testing Laboratory"
+                    className="w-full h-[500px] object-cover"
+                  />
+                  {/* Overlay gradient for better text readability if needed */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy-900/20 to-transparent"></div>
+                </div>
+                
+                {/* Floating trust badge */}
+                <div className="absolute -bottom-6 -left-6 bg-white rounded-xl shadow-xl p-6 border border-gray-100">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-6 h-6 text-teal-600" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-navy-900">99.99%</div>
+                      <div className="text-sm text-gray-600">Accuracy Rate</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </Container>
@@ -195,6 +224,84 @@ export default function HomePage() {
           </Container>
         </section>
 
+        {/* How It Works - With Images */}
+        <section className="py-20 bg-gray-50">
+          <Container>
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-navy-900 mb-4">
+                  How It Works
+                </h2>
+                <p className="text-lg text-gray-600">
+                  Simple, fast, and confidential DNA testing in three easy steps
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                {/* Step 1 */}
+                <div className="text-center">
+                  <div className="mb-6 relative">
+                    <img 
+                      src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=400&auto=format&fit=crop&q=80" 
+                      alt="Choose your test"
+                      className="w-full h-48 object-cover rounded-xl shadow-lg"
+                    />
+                    <div className="absolute -top-4 -right-4 w-12 h-12 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg">
+                      1
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-navy-900 mb-3">
+                    Choose Your Test
+                  </h3>
+                  <p className="text-gray-600">
+                    Select the DNA test that matches your needs from our comprehensive catalog
+                  </p>
+                </div>
+
+                {/* Step 2 */}
+                <div className="text-center">
+                  <div className="mb-6 relative">
+                    <img 
+                      src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&auto=format&fit=crop&q=80" 
+                      alt="Sample collection"
+                      className="w-full h-48 object-cover rounded-xl shadow-lg"
+                    />
+                    <div className="absolute -top-4 -right-4 w-12 h-12 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg">
+                      2
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-navy-900 mb-3">
+                    Collect Sample
+                  </h3>
+                  <p className="text-gray-600">
+                    Simple cheek swab collection at home or at our partner locations
+                  </p>
+                </div>
+
+                {/* Step 3 */}
+                <div className="text-center">
+                  <div className="mb-6 relative">
+                    <img 
+                      src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=400&auto=format&fit=crop&q=80" 
+                      alt="Get results"
+                      className="w-full h-48 object-cover rounded-xl shadow-lg"
+                    />
+                    <div className="absolute -top-4 -right-4 w-12 h-12 bg-teal-600 text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg">
+                      3
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-navy-900 mb-3">
+                    Get Results
+                  </h3>
+                  <p className="text-gray-600">
+                    Receive accurate results in 3-5 days via secure online portal
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Container>
+        </section>
+
         {/* Stats Section - Minimal */}
         <section className="py-20 bg-navy-900 text-white">
           <Container>
@@ -215,6 +322,75 @@ export default function HomePage() {
                 <div>
                   <div className="text-4xl md:text-5xl font-bold text-teal-400 mb-2">100+</div>
                   <div className="text-gray-300">Partner Labs</div>
+                </div>
+              </div>
+            </div>
+          </Container>
+        </section>
+
+        {/* Trust Section - With Image */}
+        <section className="py-20">
+          <Container>
+            <div className="max-w-6xl mx-auto">
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
+                {/* Image */}
+                <div className="order-2 lg:order-1">
+                  <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                    <img 
+                      src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=700&auto=format&fit=crop&q=80" 
+                      alt="Accredited Laboratory"
+                      className="w-full h-[400px] object-cover"
+                    />
+                  </div>
+                </div>
+
+                {/* Content */}
+                <div className="order-1 lg:order-2">
+                  <h2 className="text-3xl md:text-4xl font-bold text-navy-900 mb-6">
+                    Trusted by Families Across Africa
+                  </h2>
+                  <p className="text-lg text-gray-600 mb-8">
+                    We partner with internationally accredited laboratories to ensure the highest standards of accuracy, confidentiality, and reliability in DNA testing.
+                  </p>
+                  
+                  <div className="space-y-4 mb-8">
+                    <div className="flex items-start gap-4">
+                      <div className="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <CheckCircle className="w-4 h-4 text-teal-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-navy-900 mb-1">AABB Accredited</h3>
+                        <p className="text-gray-600">All partner labs meet international accreditation standards</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-4">
+                      <div className="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <CheckCircle className="w-4 h-4 text-teal-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-navy-900 mb-1">Confidential & Secure</h3>
+                        <p className="text-gray-600">Your privacy is protected with bank-level encryption</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-4">
+                      <div className="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                        <CheckCircle className="w-4 h-4 text-teal-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-navy-900 mb-1">Expert Support</h3>
+                        <p className="text-gray-600">Dedicated team to guide you through the process</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Link href="/about">
+                    <Button variant="outline" size="lg">
+                      Learn About Our Standards
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
