@@ -92,8 +92,14 @@ export default function NewArticlePage() {
 
       const result = await response.json();
 
+      console.log('Article creation response:', result); // Debug log
+
       if (result.success) {
-        alert(`Article ${status === 'PUBLISHED' ? 'published' : 'saved as draft'} successfully!`);
+        const articleId = result.data?.article?.id;
+        const articleSlug = result.data?.article?.slug;
+        console.log('Created article:', { id: articleId, slug: articleSlug }); // Debug log
+        
+        alert(`Article ${status === 'PUBLISHED' ? 'published' : 'saved as draft'} successfully!\n\nSlug: ${articleSlug}\nView at: /blog/${articleSlug}`);
         router.push('/admin/content?refresh=true');
       } else {
         alert(result.error || 'Failed to create article');
