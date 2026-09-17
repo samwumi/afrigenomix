@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "Connect with trusted laboratories for paternity, immigration, prenatal and other DNA and genetic tests in Nigeria and internationally.",
   keywords: ["DNA testing", "paternity test", "immigration DNA", "genetic testing", "Nigeria", "Africa"],
   verification: {
-    google: "gpBGpbIOomtdTLOZtY3PBJM-jLjfz2FbhDxPY7J-5lQ",
+    google: "K9DpmcNH5YnxmqPYLFv9N9CkQzI3RnYBDQAHks2FNOw",
   },
 };
 
