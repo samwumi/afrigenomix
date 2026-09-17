@@ -1,10 +1,12 @@
-# Afrigenomix Robots.txt
-
+# Allow all search engines to crawl the site
 User-agent: *
 Allow: /
-Disallow: /admin/
-Disallow: /dashboard/
-Disallow: /api/
 
-# Sitemap
+# Disallow admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /partner/
+
+# Sitemap location
 Sitemap: https://afrigenomix.com/sitemap.xml
