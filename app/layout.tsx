@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Afrigenomix - DNA Testing Platform for Africa",
   description: "Connect with trusted laboratories for paternity, immigration, prenatal and other DNA and genetic tests in Nigeria and internationally.",
   keywords: ["DNA testing", "paternity test", "immigration DNA", "genetic testing", "Nigeria", "Africa"],
+  verification: {
+    google: "gpBGpbIOomtdTLOZtY3PBJM-jLjfz2FbhDxPY7J-5lQ",
+  },
 };
 
 export default function RootLayout({
