@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 
 /**
  * GET /api/articles/[slug]
- * Get a single article by slug and increment view count
+ * Get a single article by slug and increment view count (once per user session)
  */
 export async function GET(
   request: NextRequest,
@@ -37,15 +37,21 @@ export async function GET(
       );
     }
 
-    // Increment view count
-    await prisma.article.update({
-      where: { id: article.id },
-      data: {
-        viewCount: {
-          increment: 1,
+    // Check if user has already viewed this article (cookie tracking)
+    const viewCookieName = `viewed_${article.id}`;
+    const hasViewed = request.cookies.get(viewCookieName);
+
+    // Only increment view count if user hasn't viewed before
+    if (!hasViewed) {
+      await prisma.article.update({
+        where: { id: article.id },
+        data: {
+          viewCount: {
+            increment: 1,
+          },
         },
-      },
-    });
+      });
+    }
 
     // Calculate read time
     const wordCount = article.content.split(/\s+/).length;
@@ -74,7 +80,7 @@ export async function GET(
       take: 3,
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: {
         article: {
@@ -84,6 +90,18 @@ export async function GET(
         related: relatedArticles,
       },
     });
+
+    // Set cookie to track this view (expires in 24 hours)
+    if (!hasViewed) {
+      response.cookies.set(viewCookieName, 'true', {
+        maxAge: 60 * 60 * 24, // 24 hours in seconds
+        path: '/',
+        httpOnly: true,
+        sameSite: 'lax',
+      });
+    }
+
+    return response;
   } catch (error) {
     console.error('Article fetch error:', error);
     return NextResponse.json(
