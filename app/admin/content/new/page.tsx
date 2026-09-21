@@ -272,9 +272,14 @@ export default function NewArticlePage() {
                 {/* Featured Image */}
                 <Card>
                   <div className="p-6">
-                    <label className="block text-sm font-semibold text-navy-900 mb-2">
-                      Featured Image
-                    </label>
+                    <div className="mb-4">
+                      <label className="block text-sm font-semibold text-navy-900 mb-1">
+                        Featured Image
+                      </label>
+                      <p className="text-xs text-gray-500">
+                        Add an image that will appear in blog listings and social media shares
+                      </p>
+                    </div>
 
                     {/* Toggle between Upload and URL */}
                     <div className="flex gap-2 mb-4">
