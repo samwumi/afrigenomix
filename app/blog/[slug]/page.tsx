@@ -24,10 +24,7 @@ import {
   BookOpen,
   TrendingUp,
   Heart,
-  MessageCircle,
-  Facebook,
-  Twitter,
-  Linkedin
+  MessageCircle
 } from 'lucide-react';
 
 interface Article {
@@ -383,7 +380,7 @@ export default function ArticlePage() {
                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors text-left group"
                       >
                         <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                          <Facebook className="w-4 h-4 text-white fill-white" />
+                          <Share2 className="w-4 h-4 text-white" />
                         </div>
                         <span className="font-medium text-gray-900 group-hover:text-blue-600">Facebook</span>
                       </button>
@@ -392,7 +389,7 @@ export default function ArticlePage() {
                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-sky-50 rounded-lg transition-colors text-left group"
                       >
                         <div className="w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center">
-                          <Twitter className="w-4 h-4 text-white fill-white" />
+                          <Share2 className="w-4 h-4 text-white" />
                         </div>
                         <span className="font-medium text-gray-900 group-hover:text-sky-500">Twitter</span>
                       </button>
@@ -401,7 +398,7 @@ export default function ArticlePage() {
                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors text-left group"
                       >
                         <div className="w-8 h-8 bg-blue-700 rounded-full flex items-center justify-center">
-                          <Linkedin className="w-4 h-4 text-white fill-white" />
+                          <Share2 className="w-4 h-4 text-white" />
                         </div>
                         <span className="font-medium text-gray-900 group-hover:text-blue-700">LinkedIn</span>
                       </button>
