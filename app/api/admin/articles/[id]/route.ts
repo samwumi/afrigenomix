@@ -124,6 +124,8 @@ export async function PUT(
       publishedAt,
     } = body;
 
+    console.log('Update article - featuredImage received:', featuredImage);
+
     // Check if article exists
     const existingArticle = await prisma.article.findUnique({
       where: { id },
@@ -151,23 +153,27 @@ export async function PUT(
     }
 
     // Update article
+    const updateData = {
+      ...(title && { title }),
+      ...(slug && { slug }),
+      ...(excerpt !== undefined && { excerpt: excerpt || null }),
+      ...(content && { content }),
+      ...(category && { category }),
+      ...(metaTitle !== undefined && { metaTitle: metaTitle || null }),
+      ...(metaDescription !== undefined && { metaDescription: metaDescription || null }),
+      ...(featuredImage !== undefined && { featuredImage: featuredImage || null }),
+      ...(status && { status }),
+      ...(isFeatured !== undefined && { isFeatured }),
+      ...(publishedAt !== undefined && {
+        publishedAt: publishedAt ? new Date(publishedAt) : null,
+      }),
+    };
+
+    console.log('Update article - data being saved:', JSON.stringify(updateData, null, 2));
+
     const article = await prisma.article.update({
       where: { id },
-      data: {
-        ...(title && { title }),
-        ...(slug && { slug }),
-        ...(excerpt !== undefined && { excerpt: excerpt || null }),
-        ...(content && { content }),
-        ...(category && { category }),
-        ...(metaTitle !== undefined && { metaTitle: metaTitle || null }),
-        ...(metaDescription !== undefined && { metaDescription: metaDescription || null }),
-        ...(featuredImage !== undefined && { featuredImage: featuredImage || null }),
-        ...(status && { status }),
-        ...(isFeatured !== undefined && { isFeatured }),
-        ...(publishedAt !== undefined && {
-          publishedAt: publishedAt ? new Date(publishedAt) : null,
-        }),
-      },
+      data: updateData,
     });
 
     return NextResponse.json({
