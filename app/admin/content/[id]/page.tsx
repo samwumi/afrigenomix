@@ -26,6 +26,8 @@ export default function EditArticlePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadMethod, setUploadMethod] = useState<'url' | 'upload'>('upload');
   const [formData, setFormData] = useState({
     title: '',
     slug: '',
@@ -116,6 +118,63 @@ export default function EditArticlePage() {
   const removeImage = () => {
     setFormData({ ...formData, featuredImage: '' });
     setImagePreview(null);
+  };
+
+  const handleImageUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size must be less than 5MB');
+      return;
+    }
+
+    setIsUploadingImage(true);
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64String = reader.result as string;
+        
+        const formData = new FormData();
+        formData.append('image', base64String.split(',')[1]);
+        
+        const response = await fetch('https://api.imgbb.com/1/upload?key=d3c3f6421e6f4d0d5e0c5a8b4e5c3f2a', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          const imageUrl = result.data.url;
+          setFormData(prev => ({ ...prev, featuredImage: imageUrl }));
+          setImagePreview(imageUrl);
+        } else {
+          setFormData(prev => ({ ...prev, featuredImage: base64String }));
+          setImagePreview(base64String);
+          alert('Image uploaded locally (base64). For best performance, consider using an image URL.');
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Failed to upload image. Please try using an image URL instead.');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) handleImageUpload(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
   };
 
   const handleSubmit = async (e: React.FormEvent, newStatus?: 'DRAFT' | 'PUBLISHED') => {
@@ -292,6 +351,32 @@ export default function EditArticlePage() {
                     <label className="block text-sm font-semibold text-navy-900 mb-2">
                       Featured Image
                     </label>
+
+                    {/* Toggle between Upload and URL */}
+                    <div className="flex gap-2 mb-4">
+                      <button
+                        type="button"
+                        onClick={() => setUploadMethod('upload')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          uploadMethod === 'upload'
+                            ? 'bg-teal-500 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        📤 Upload Image
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setUploadMethod('url')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          uploadMethod === 'url'
+                            ? 'bg-teal-500 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        🔗 Use URL
+                      </button>
+                    </div>
                     
                     {imagePreview ? (
                       <div className="relative">
@@ -311,33 +396,72 @@ export default function EditArticlePage() {
                           <X className="w-4 h-4" />
                         </button>
                       </div>
+                    ) : uploadMethod === 'upload' ? (
+                      <div
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                        className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-teal-500 transition-colors cursor-pointer"
+                      >
+                        <input
+                          type="file"
+                          id="image-upload-edit"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file);
+                          }}
+                          className="hidden"
+                        />
+                        <label htmlFor="image-upload-edit" className="cursor-pointer">
+                          {isUploadingImage ? (
+                            <>
+                              <Spinner size="md" className="mx-auto mb-4" />
+                              <p className="text-sm text-gray-600">Uploading...</p>
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                              <p className="text-sm font-semibold text-gray-700 mb-2">
+                                Drop image here or click to browse
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                PNG, JPG, GIF up to 5MB
+                              </p>
+                            </>
+                          )}
+                        </label>
+                      </div>
                     ) : (
                       <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-teal-500 transition-colors">
                         <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                         <p className="text-sm text-gray-600 mb-4">
-                          Add an image URL (Unsplash, Pexels, or your own CDN)
+                          Paste an image URL from Unsplash, Pexels, or your CDN
                         </p>
                       </div>
                     )}
                     
-                    <input
-                      type="url"
-                      value={formData.featuredImage}
-                      onChange={(e) => handleImageUrlChange(e.target.value)}
-                      placeholder="https://images.unsplash.com/photo-..."
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent mt-4"
-                    />
-                    <p className="text-sm text-gray-600 mt-2">
-                      Recommended: 1200x630px for best social sharing results
+                    {uploadMethod === 'url' && (
+                      <>
+                        <input
+                          type="url"
+                          value={formData.featuredImage}
+                          onChange={(e) => handleImageUrlChange(e.target.value)}
+                          placeholder="https://images.unsplash.com/photo-..."
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent mt-4"
+                        />
+                        <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                          <p className="text-sm font-semibold text-blue-900 mb-1">Free Image Sources:</p>
+                          <ul className="text-sm text-blue-800 space-y-1">
+                            <li>• <a href="https://unsplash.com" target="_blank" rel="noopener" className="underline hover:text-blue-600">Unsplash.com</a></li>
+                            <li>• <a href="https://pexels.com" target="_blank" rel="noopener" className="underline hover:text-blue-600">Pexels.com</a></li>
+                          </ul>
+                        </div>
+                      </>
+                    )}
+                    
+                    <p className="text-sm text-gray-600 mt-4">
+                      📏 Recommended: 1200x630px for best social sharing
                     </p>
-                    <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                      <p className="text-sm font-semibold text-blue-900 mb-1">Free Image Sources:</p>
-                      <ul className="text-sm text-blue-800 space-y-1">
-                        <li>• <a href="https://unsplash.com" target="_blank" rel="noopener" className="underline hover:text-blue-600">Unsplash.com</a> - High-quality, free photos</li>
-                        <li>• <a href="https://pexels.com" target="_blank" rel="noopener" className="underline hover:text-blue-600">Pexels.com</a> - Free stock photos</li>
-                        <li>• Right-click image → "Copy image address"</li>
-                      </ul>
-                    </div>
                   </div>
                 </Card>
 
