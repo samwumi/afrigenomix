@@ -88,27 +88,36 @@ export default function NewArticlePage() {
       reader.onloadend = async () => {
         const base64String = reader.result as string;
         
-        // Upload to imgbb API (free, no account needed)
-        const uploadFormData = new FormData();
-        uploadFormData.append('image', base64String.split(',')[1]);
-        
-        const response = await fetch('https://api.imgbb.com/1/upload?key=d3c3f6421e6f4d0d5e0c5a8b4e5c3f2a', {
-          method: 'POST',
-          body: uploadFormData,
-        });
+        // Try uploading to imgbb first
+        try {
+          const uploadFormData = new FormData();
+          uploadFormData.append('image', base64String.split(',')[1]);
+          
+          const response = await fetch('https://api.imgbb.com/1/upload?key=d3c3f6421e6f4d0d5e0c5a8b4e5c3f2a', {
+            method: 'POST',
+            body: uploadFormData,
+          });
 
-        const result = await response.json();
-
-        if (result.success) {
-          const imageUrl = result.data.url;
-          setFormData(prev => ({ ...prev, featuredImage: imageUrl }));
-          setImagePreview(imageUrl);
-        } else {
-          // Fallback: use base64 (not recommended for production)
-          setFormData(prev => ({ ...prev, featuredImage: base64String }));
-          setImagePreview(base64String);
-          alert('Image uploaded locally (base64). For best performance, consider using an image URL from Unsplash/Pexels.');
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.data?.url) {
+              const imageUrl = result.data.url;
+              setFormData(prev => ({ ...prev, featuredImage: imageUrl }));
+              setImagePreview(imageUrl);
+              console.log('Image uploaded to imgbb:', imageUrl);
+              setIsUploadingImage(false);
+              return;
+            }
+          }
+        } catch (uploadError) {
+          console.log('imgbb upload failed, using base64 fallback');
         }
+
+        // Fallback: use base64 (not recommended for production)
+        setFormData(prev => ({ ...prev, featuredImage: base64String }));
+        setImagePreview(base64String);
+        console.log('Image stored as base64 (first 100 chars):', base64String.substring(0, 100));
+        alert('Image uploaded locally. Note: Base64 images work but may be slower. Consider using an image URL from Unsplash for better performance.');
       };
       reader.readAsDataURL(file);
     } catch (error) {
