@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Container } from '@/components/layout/Container';
@@ -15,7 +16,8 @@ import {
   BookOpen,
   TrendingUp,
   Filter,
-  X
+  X,
+  Eye
 } from 'lucide-react';
 
 interface Article {
@@ -225,60 +227,84 @@ export default function BlogPage() {
 
           {/* Featured Article */}
           {featuredArticle && selectedCategory === 'ALL' && !searchQuery && (
-            <div className="mb-12">
+            <div className="mb-16">
               <div className="flex items-center gap-2 mb-6">
                 <TrendingUp className="w-6 h-6 text-teal-600" />
                 <h2 className="text-2xl font-bold text-navy-900">Featured Article</h2>
               </div>
               
               <Link href={`/blog/${featuredArticle.slug}`}>
-                <Card className="group hover:shadow-2xl transition-all duration-300 border-2 border-gray-100 hover:border-teal-500 overflow-hidden cursor-pointer">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {featuredArticle.featuredImage ? (
-                      <div className="relative h-64 md:h-full bg-gradient-to-br from-teal-500 to-navy-900">
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <BookOpen className="w-20 h-20 text-white/20" />
+                <Card className="group hover:shadow-2xl transition-all duration-300 border-0 overflow-hidden cursor-pointer bg-gradient-to-br from-gray-50 to-white">
+                  <div className="grid md:grid-cols-5 gap-0">
+                    {/* Featured Image - Takes 3 columns */}
+                    <div className="md:col-span-3 relative h-64 md:h-[400px] overflow-hidden">
+                      {featuredArticle.featuredImage ? (
+                        <>
+                          <Image
+                            src={featuredArticle.featuredImage}
+                            alt={featuredArticle.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                          <div className="absolute bottom-4 left-4">
+                            <Badge className="bg-teal-500 text-white border-0 shadow-lg">
+                              ⭐ Featured
+                            </Badge>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="relative h-full bg-gradient-to-br from-teal-500 via-navy-800 to-navy-900 flex items-center justify-center">
+                          <BookOpen className="w-24 h-24 text-white/30" />
+                          <div className="absolute bottom-4 left-4">
+                            <Badge className="bg-white/20 backdrop-blur-sm text-white border-0">
+                              ⭐ Featured
+                            </Badge>
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="relative h-64 md:h-full bg-gradient-to-br from-teal-500 to-navy-900 flex items-center justify-center">
-                        <BookOpen className="w-20 h-20 text-white/50" />
-                      </div>
-                    )}
+                      )}
+                    </div>
                     
-                    <div className="p-8 flex flex-col justify-center">
-                      <Badge className={`${getCategoryColor(featuredArticle.category)} mb-4 w-fit`}>
+                    {/* Content - Takes 2 columns */}
+                    <div className="md:col-span-2 p-8 flex flex-col justify-center">
+                      <Badge className={`${getCategoryColor(featuredArticle.category)} mb-4 w-fit text-xs uppercase tracking-wide`}>
                         {CATEGORIES.find(c => c.value === featuredArticle.category)?.label}
                       </Badge>
                       
-                      <h3 className="text-3xl font-bold text-navy-900 mb-4 group-hover:text-teal-600 transition-colors">
+                      <h3 className="text-2xl md:text-3xl font-bold text-navy-900 mb-4 group-hover:text-teal-600 transition-colors leading-tight">
                         {featuredArticle.title}
                       </h3>
                       
-                      <p className="text-gray-700 mb-6 line-clamp-3">
+                      <p className="text-gray-600 mb-6 line-clamp-3 leading-relaxed">
                         {featuredArticle.excerpt}
                       </p>
                       
-                      <div className="flex items-center gap-6 text-sm text-gray-600 mb-6">
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-6">
                         {featuredArticle.author && (
                           <div className="flex items-center gap-2">
-                            <User className="w-4 h-4" />
-                            <span>{featuredArticle.author.name}</span>
+                            <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center">
+                              <User className="w-4 h-4 text-teal-600" />
+                            </div>
+                            <span className="font-medium text-navy-900">{featuredArticle.author.name}</span>
                           </div>
                         )}
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           <Calendar className="w-4 h-4" />
                           <span>{formatDate(featuredArticle.publishedAt)}</span>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           <BookOpen className="w-4 h-4" />
                           <span>{featuredArticle.readTime} min read</span>
                         </div>
+                        <div className="flex items-center gap-1.5">
+                          <Eye className="w-4 h-4" />
+                          <span>{featuredArticle.viewCount.toLocaleString()} views</span>
+                        </div>
                       </div>
                       
-                      <Button variant="primary" className="group-hover:bg-teal-600 w-fit">
-                        Read Article
-                        <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                      <Button variant="primary" className="group-hover:bg-teal-600 w-fit group/btn">
+                        Read Full Article
+                        <ArrowRight className="w-5 h-5 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                       </Button>
                     </div>
                   </div>
@@ -331,15 +357,29 @@ export default function BlogPage() {
                 <span className="text-gray-600">{articles.length} {articles.length === 1 ? 'article' : 'articles'}</span>
               </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {articles.map((article) => (
                   <Link key={article.id} href={`/blog/${article.slug}`}>
-                    <Card className="group h-full hover:shadow-xl transition-all duration-300 border-2 border-gray-100 hover:border-teal-500 cursor-pointer flex flex-col">
+                    <Card className="group h-full hover:shadow-2xl transition-all duration-300 border-0 cursor-pointer flex flex-col overflow-hidden bg-white">
                       {/* Featured Image */}
-                      <div className="relative h-48 bg-gradient-to-br from-teal-500 to-navy-900 flex items-center justify-center overflow-hidden">
-                        <BookOpen className="w-16 h-16 text-white/50 group-hover:scale-110 transition-transform" />
+                      <div className="relative h-56 overflow-hidden">
+                        {article.featuredImage ? (
+                          <>
+                            <Image
+                              src={article.featuredImage}
+                              alt={article.title}
+                              fill
+                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </>
+                        ) : (
+                          <div className="h-full bg-gradient-to-br from-teal-500 via-navy-700 to-navy-900 flex items-center justify-center">
+                            <BookOpen className="w-16 h-16 text-white/40 group-hover:scale-110 transition-transform" />
+                          </div>
+                        )}
                         <div className="absolute top-4 right-4">
-                          <Badge className={getCategoryColor(article.category)}>
+                          <Badge className={`${getCategoryColor(article.category)} backdrop-blur-sm shadow-lg text-xs`}>
                             {CATEGORIES.find(c => c.value === article.category)?.label}
                           </Badge>
                         </div>
@@ -347,37 +387,44 @@ export default function BlogPage() {
 
                       {/* Content */}
                       <div className="p-6 flex-1 flex flex-col">
-                        <h3 className="text-xl font-bold text-navy-900 mb-3 group-hover:text-teal-600 transition-colors line-clamp-2">
+                        <h3 className="text-xl font-bold text-navy-900 mb-3 group-hover:text-teal-600 transition-colors line-clamp-2 leading-tight">
                           {article.title}
                         </h3>
                         
-                        <p className="text-gray-700 mb-4 line-clamp-3 flex-1">
+                        <p className="text-gray-600 mb-4 line-clamp-3 flex-1 text-sm leading-relaxed">
                           {article.excerpt}
                         </p>
                         
                         <div className="space-y-3 pt-4 border-t border-gray-100">
                           {article.author && (
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <User className="w-4 h-4" />
-                              <span className="font-medium">{article.author.name}</span>
+                            <div className="flex items-center gap-2 text-sm">
+                              <div className="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
+                                <User className="w-3 h-3 text-teal-600" />
+                              </div>
+                              <span className="font-medium text-navy-900 truncate">{article.author.name}</span>
                             </div>
                           )}
                           
-                          <div className="flex items-center justify-between text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4" />
+                          <div className="flex items-center justify-between text-xs text-gray-500">
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5" />
                               <span>{formatDate(article.publishedAt)}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <BookOpen className="w-4 h-4" />
-                              <span>{article.readTime} min</span>
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-1.5">
+                                <BookOpen className="w-3.5 h-3.5" />
+                                <span>{article.readTime} min</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>{article.viewCount}</span>
+                              </div>
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-gray-500">{article.viewCount} views</span>
-                            <span className="text-teal-600 font-medium text-sm group-hover:gap-2 flex items-center gap-1 transition-all">
-                              Read More
+                          <div className="flex items-center justify-end pt-2">
+                            <span className="text-teal-600 font-semibold text-sm group-hover:gap-2 flex items-center gap-1 transition-all">
+                              Read Article
                               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </span>
                           </div>

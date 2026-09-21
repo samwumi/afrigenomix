@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Container } from '@/components/layout/Container';
 import { Card, Button, Spinner } from '@/components/ui';
-import { ArrowLeft, Save, Eye } from 'lucide-react';
+import { ArrowLeft, Save, Eye, Upload, X } from 'lucide-react';
 
 const CATEGORIES = [
   { value: 'DNA_EDUCATION', label: 'DNA Education' },
@@ -32,11 +33,13 @@ export default function NewArticlePage() {
     metaDescription: '',
     status: 'DRAFT',
     isFeatured: false,
+    featuredImage: '',
     authorName: '',
     authorTitle: '',
     authorBio: '',
     authorEmail: '',
   });
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const generateSlug = (title: string) => {
     return title
@@ -51,6 +54,16 @@ export default function NewArticlePage() {
       title,
       slug: generateSlug(title),
     });
+  };
+
+  const handleImageUrlChange = (url: string) => {
+    setFormData({ ...formData, featuredImage: url });
+    setImagePreview(url);
+  };
+
+  const removeImage = () => {
+    setFormData({ ...formData, featuredImage: '' });
+    setImagePreview(null);
   };
 
   const handleSubmit = async (e: React.FormEvent, status: 'DRAFT' | 'PUBLISHED') => {
@@ -190,6 +203,61 @@ export default function NewArticlePage() {
                       rows={3}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
                     />
+                  </div>
+                </Card>
+
+                {/* Featured Image */}
+                <Card>
+                  <div className="p-6">
+                    <label className="block text-sm font-semibold text-navy-900 mb-2">
+                      Featured Image
+                    </label>
+                    
+                    {imagePreview ? (
+                      <div className="relative">
+                        <div className="relative w-full h-64 rounded-lg overflow-hidden border border-gray-200">
+                          <Image
+                            src={imagePreview}
+                            alt="Featured image preview"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={removeImage}
+                          className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-teal-500 transition-colors">
+                        <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                        <p className="text-sm text-gray-600 mb-4">
+                          Add an image URL (Unsplash, Pexels, or your own CDN)
+                        </p>
+                      </div>
+                    )}
+                    
+                    <input
+                      type="url"
+                      value={formData.featuredImage}
+                      onChange={(e) => handleImageUrlChange(e.target.value)}
+                      placeholder="https://images.unsplash.com/photo-..."
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent mt-4"
+                    />
+                    <p className="text-sm text-gray-600 mt-2">
+                      Recommended: 1200x630px for best social sharing results
+                    </p>
+                    <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                      <p className="text-sm font-semibold text-blue-900 mb-1">Free Image Sources:</p>
+                      <ul className="text-sm text-blue-800 space-y-1">
+                        <li>• <a href="https://unsplash.com" target="_blank" rel="noopener" className="underline hover:text-blue-600">Unsplash.com</a> - High-quality, free photos</li>
+                        <li>• <a href="https://pexels.com" target="_blank" rel="noopener" className="underline hover:text-blue-600">Pexels.com</a> - Free stock photos</li>
+                        <li>• Right-click image → "Copy image address"</li>
+                      </ul>
+                    </div>
                   </div>
                 </Card>
 

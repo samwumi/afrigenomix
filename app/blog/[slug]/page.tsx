@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Container } from '@/components/layout/Container';
@@ -23,7 +24,10 @@ import {
   BookOpen,
   TrendingUp,
   Heart,
-  MessageCircle
+  MessageCircle,
+  Facebook,
+  Twitter,
+  Linkedin
 } from 'lucide-react';
 
 interface Article {
@@ -53,6 +57,7 @@ interface RelatedArticle {
   slug: string;
   excerpt: string;
   category: string;
+  featuredImage: string | null;
   publishedAt: string;
 }
 
@@ -230,13 +235,16 @@ export default function ArticlePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen flex flex-col bg-white">
       <ReadingProgress />
       <SEO
         title={seoTitle}
         description={seoDescription}
         canonical={`https://afrigenomix.com/blog/${article.slug}`}
-        ogImage={article.featuredImage || undefined}
+        ogImage={article.featuredImage || 'https://afrigenomix.com/og-image.jpg'}
+        ogImageWidth="1200"
+        ogImageHeight="630"
+        ogImageAlt={article.title}
         ogType="article"
         articleData={{
           publishedTime: article.publishedAt,
@@ -245,24 +253,70 @@ export default function ArticlePage() {
         }}
         keywords={keywords}
         structuredData={structuredData}
+        twitterHandle="@afrigenomix"
       />
       <Header />
       
-      <main className="flex-1 py-8 md:py-12">
-        <Container>
-          {/* Back Button */}
-          <div className="mb-6">
-            <Link href="/blog">
-              <Button variant="outline" size="sm" className="group">
-                <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                Back to Blog
-              </Button>
-            </Link>
-          </div>
+      <main className="flex-1">
+        {/* Hero Image Section */}
+        {article.featuredImage && (
+          <div className="relative w-full h-[60vh] min-h-[400px] max-h-[600px] bg-navy-900">
+            <Image
+              src={article.featuredImage}
+              alt={article.title}
+              fill
+              priority
+              className="object-cover opacity-90"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+            
+            {/* Back Button Overlay */}
+            <div className="absolute top-8 left-0 right-0 z-10">
+              <Container>
+                <Link href="/blog">
+                  <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 group">
+                    <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+                    Back to Blog
+                  </Button>
+                </Link>
+              </Container>
+            </div>
 
-          <div className="max-w-7xl mx-auto">
-            {/* Article Header */}
+            {/* Title Overlay */}
+            <div className="absolute bottom-0 left-0 right-0 pb-12">
+              <Container>
+                <div className="max-w-4xl">
+                  <Badge className="bg-teal-500 text-white border-0 mb-4 shadow-lg">
+                    {categoryInfo.label}
+                  </Badge>
+                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-2xl">
+                    {article.title}
+                  </h1>
+                  {article.excerpt && (
+                    <p className="text-lg md:text-xl text-gray-200 drop-shadow-lg">
+                      {article.excerpt}
+                    </p>
+                  )}
+                </div>
+              </Container>
+            </div>
+          </div>
+        )}
+
+        {/* Article Content */}
+        <Container className="py-8 md:py-12">
+          {/* No featured image - show traditional header */}
+          {!article.featuredImage && (
             <div className="mb-8">
+              <div className="mb-6">
+                <Link href="/blog">
+                  <Button variant="outline" size="sm" className="group">
+                    <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+                    Back to Blog
+                  </Button>
+                </Link>
+              </div>
+
               <Badge className={`${categoryInfo.color} mb-4`}>
                 {categoryInfo.label}
               </Badge>
@@ -276,91 +330,109 @@ export default function ArticlePage() {
                   {article.excerpt}
                 </p>
               )}
+            </div>
+          )}
 
-              {/* Meta Info */}
-              <div className="flex flex-wrap items-center gap-6 text-gray-600 pb-6 border-b border-gray-200">
-                {article.author && (
-                  <div className="flex items-center gap-2">
-                    <User className="w-5 h-5" />
-                    <div>
-                      <div className="font-semibold text-navy-900">{article.author.name}</div>
-                      {article.author.title && (
-                        <div className="text-sm">{article.author.title}</div>
-                      )}
+          <div className="max-w-7xl mx-auto">
+            {/* Meta Info Bar */}
+            <div className="flex flex-wrap items-center gap-4 md:gap-6 py-6 mb-8 border-y border-gray-200">
+              {article.author && (
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-navy-700 rounded-full flex items-center justify-center flex-shrink-0">
+                    <User className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-navy-900">{article.author.name}</div>
+                    {article.author.title && (
+                      <div className="text-sm text-gray-600">{article.author.title}</div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex items-center gap-1.5 text-gray-600">
+                <Calendar className="w-4 h-4" />
+                <span className="text-sm">{formatDate(article.publishedAt)}</span>
+              </div>
+              
+              <div className="flex items-center gap-1.5 text-gray-600">
+                <Clock className="w-4 h-4" />
+                <span className="text-sm">{article.readTime} min read</span>
+              </div>
+              
+              <div className="flex items-center gap-1.5 text-gray-600">
+                <Eye className="w-4 h-4" />
+                <span className="text-sm">{article.viewCount.toLocaleString()} views</span>
+              </div>
+
+              {/* Share Button */}
+              <div className="ml-auto relative">
+                <button
+                  onClick={() => setShowShareMenu(!showShareMenu)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors font-semibold text-sm"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </button>
+
+                {showShareMenu && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 z-20 overflow-hidden">
+                    <div className="p-2">
+                      <button
+                        onClick={() => shareArticle('facebook')}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors text-left group"
+                      >
+                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                          <Facebook className="w-4 h-4 text-white fill-white" />
+                        </div>
+                        <span className="font-medium text-gray-900 group-hover:text-blue-600">Facebook</span>
+                      </button>
+                      <button
+                        onClick={() => shareArticle('twitter')}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-sky-50 rounded-lg transition-colors text-left group"
+                      >
+                        <div className="w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center">
+                          <Twitter className="w-4 h-4 text-white fill-white" />
+                        </div>
+                        <span className="font-medium text-gray-900 group-hover:text-sky-500">Twitter</span>
+                      </button>
+                      <button
+                        onClick={() => shareArticle('linkedin')}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors text-left group"
+                      >
+                        <div className="w-8 h-8 bg-blue-700 rounded-full flex items-center justify-center">
+                          <Linkedin className="w-4 h-4 text-white fill-white" />
+                        </div>
+                        <span className="font-medium text-gray-900 group-hover:text-blue-700">LinkedIn</span>
+                      </button>
+                      <button
+                        onClick={() => shareArticle('email')}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors text-left group"
+                      >
+                        <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+                          <Mail className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="font-medium text-gray-900 group-hover:text-gray-600">Email</span>
+                      </button>
+                      <div className="border-t border-gray-200 my-2"></div>
+                      <button
+                        onClick={copyLink}
+                        className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 rounded-lg transition-colors text-left ${
+                          copySuccess ? 'bg-green-50' : ''
+                        }`}
+                      >
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          copySuccess ? 'bg-green-500' : 'bg-gray-400'
+                        }`}>
+                          <Share2 className="w-4 h-4 text-white" />
+                        </div>
+                        <span className={`font-medium ${copySuccess ? 'text-green-600' : 'text-gray-900'}`}>
+                          {copySuccess ? '✓ Link Copied!' : 'Copy Link'}
+                        </span>
+                      </button>
                     </div>
                   </div>
                 )}
-                
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  <span>{formatDate(article.publishedAt)}</span>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
-                  <span>{article.readTime} min read</span>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Eye className="w-5 h-5" />
-                  <span>{article.viewCount} views</span>
-                </div>
-
-                {/* Share Button */}
-                <div className="ml-auto relative">
-                  <button
-                    onClick={() => setShowShareMenu(!showShareMenu)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors font-medium"
-                  >
-                    <Share2 className="w-5 h-5" />
-                    Share
-                  </button>
-
-                  {showShareMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border-2 border-gray-100 z-10">
-                      <div className="p-2">
-                        <button
-                          onClick={() => shareArticle('facebook')}
-                          className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg transition-colors text-left"
-                        >
-                          <Share2 className="w-5 h-5 text-blue-600" />
-                          <span>Facebook</span>
-                        </button>
-                        <button
-                          onClick={() => shareArticle('twitter')}
-                          className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg transition-colors text-left"
-                        >
-                          <Share2 className="w-5 h-5 text-sky-500" />
-                          <span>Twitter</span>
-                        </button>
-                        <button
-                          onClick={() => shareArticle('linkedin')}
-                          className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg transition-colors text-left"
-                        >
-                          <Share2 className="w-5 h-5 text-blue-700" />
-                          <span>LinkedIn</span>
-                        </button>
-                        <button
-                          onClick={() => shareArticle('email')}
-                          className="w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg transition-colors text-left"
-                        >
-                          <Mail className="w-5 h-5 text-gray-600" />
-                          <span>Email</span>
-                        </button>
-                        <div className="border-t border-gray-200 my-2"></div>
-                        <button
-                          onClick={copyLink}
-                          className={`w-full flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg transition-colors text-left ${
-                            copySuccess ? 'text-green-600' : 'text-gray-700'
-                          }`}
-                        >
-                          <Share2 className="w-5 h-5" />
-                          <span>{copySuccess ? 'Link Copied!' : 'Copy Link'}</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
 
@@ -458,37 +530,58 @@ export default function ArticlePage() {
 
             {/* Related Articles */}
             {relatedArticles.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-6">
+              <div className="mt-16">
+                <div className="flex items-center gap-2 mb-8">
                   <TrendingUp className="w-6 h-6 text-teal-600" />
-                  <h2 className="text-2xl font-bold text-navy-900">Related Articles</h2>
+                  <h2 className="text-3xl font-bold text-navy-900">Related Articles</h2>
                 </div>
                 
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-3 gap-6">
                   {relatedArticles.map((related) => (
                     <Link key={related.id} href={`/blog/${related.slug}`}>
-                      <Card className="group h-full hover:shadow-xl transition-all duration-300 border-2 border-gray-100 hover:border-teal-500 cursor-pointer">
-                        <div className="p-6">
-                          <Badge className={`${CATEGORIES[related.category]?.color || 'bg-gray-100 text-gray-700'} mb-3`}>
-                            {CATEGORIES[related.category]?.label || related.category}
-                          </Badge>
-                          
-                          <h3 className="text-xl font-bold text-navy-900 mb-3 group-hover:text-teal-600 transition-colors line-clamp-2">
+                      <Card className="group h-full hover:shadow-2xl transition-all duration-300 border-0 cursor-pointer overflow-hidden">
+                        {/* Image */}
+                        <div className="relative h-48 overflow-hidden">
+                          {related.featuredImage ? (
+                            <>
+                              <Image
+                                src={related.featuredImage}
+                                alt={related.title}
+                                fill
+                                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </>
+                          ) : (
+                            <div className="h-full bg-gradient-to-br from-teal-500 via-navy-700 to-navy-900 flex items-center justify-center">
+                              <BookOpen className="w-12 h-12 text-white/40" />
+                            </div>
+                          )}
+                          <div className="absolute top-3 right-3">
+                            <Badge className={`${CATEGORIES[related.category]?.color || 'bg-gray-100 text-gray-700'} backdrop-blur-sm shadow-lg text-xs`}>
+                              {CATEGORIES[related.category]?.label || related.category}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-5">
+                          <h3 className="text-lg font-bold text-navy-900 mb-2 group-hover:text-teal-600 transition-colors line-clamp-2 leading-tight">
                             {related.title}
                           </h3>
                           
-                          <p className="text-gray-700 line-clamp-2 mb-4">
+                          <p className="text-gray-600 text-sm line-clamp-2 mb-4 leading-relaxed">
                             {related.excerpt}
                           </p>
                           
-                          <div className="flex items-center justify-between text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4" />
+                          <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-gray-100">
+                            <div className="flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5" />
                               <span>{formatDate(related.publishedAt)}</span>
                             </div>
-                            <span className="text-teal-600 font-medium group-hover:gap-2 flex items-center gap-1 transition-all">
-                              Read More
-                              <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
+                            <span className="text-teal-600 font-semibold group-hover:gap-1.5 flex items-center gap-1 transition-all">
+                              Read
+                              <ArrowLeft className="w-3.5 h-3.5 rotate-180 group-hover:translate-x-0.5 transition-transform" />
                             </span>
                           </div>
                         </div>

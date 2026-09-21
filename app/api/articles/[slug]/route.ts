@@ -72,6 +72,7 @@ export async function GET(
         slug: true,
         excerpt: true,
         category: true,
+        featuredImage: true,
         publishedAt: true,
       },
       orderBy: {

@@ -5,6 +5,9 @@ interface SEOProps {
   description: string;
   canonical?: string;
   ogImage?: string;
+  ogImageWidth?: string;
+  ogImageHeight?: string;
+  ogImageAlt?: string;
   ogType?: 'website' | 'article';
   articleData?: {
     publishedTime?: string;
@@ -16,6 +19,7 @@ interface SEOProps {
   keywords?: string[];
   noindex?: boolean;
   structuredData?: Record<string, any>;
+  twitterHandle?: string;
 }
 
 export function SEO({
@@ -23,15 +27,20 @@ export function SEO({
   description,
   canonical,
   ogImage,
+  ogImageWidth = '1200',
+  ogImageHeight = '630',
+  ogImageAlt,
   ogType = 'website',
   articleData,
   keywords = [],
   noindex = false,
   structuredData,
+  twitterHandle = '@afrigenomix',
 }: SEOProps) {
   const siteName = 'Afrigenomix';
   const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
-  const defaultOgImage = ogImage || '/og-image.jpg';
+  const defaultOgImage = ogImage || 'https://afrigenomix.com/og-image.jpg';
+  const imageAlt = ogImageAlt || title;
   const url = canonical || (typeof window !== 'undefined' ? window.location.href : '');
 
   useEffect(() => {
@@ -67,9 +76,14 @@ export function SEO({
     updateMetaTag('og:title', fullTitle, true);
     updateMetaTag('og:description', description, true);
     updateMetaTag('og:image', defaultOgImage, true);
+    updateMetaTag('og:image:secure_url', defaultOgImage, true);
+    updateMetaTag('og:image:width', ogImageWidth, true);
+    updateMetaTag('og:image:height', ogImageHeight, true);
+    updateMetaTag('og:image:alt', imageAlt, true);
     if (url) {
       updateMetaTag('og:url', url, true);
     }
+    updateMetaTag('og:locale', 'en_US', true);
 
     // Article specific tags
     if (ogType === 'article' && articleData) {
@@ -89,9 +103,12 @@ export function SEO({
 
     // Twitter Card tags
     updateMetaTag('twitter:card', 'summary_large_image');
+    updateMetaTag('twitter:site', twitterHandle);
+    updateMetaTag('twitter:creator', twitterHandle);
     updateMetaTag('twitter:title', fullTitle);
     updateMetaTag('twitter:description', description);
     updateMetaTag('twitter:image', defaultOgImage);
+    updateMetaTag('twitter:image:alt', imageAlt);
 
     // Canonical link
     if (canonical) {
@@ -114,7 +131,7 @@ export function SEO({
       }
       scriptElement.textContent = JSON.stringify(structuredData);
     }
-  }, [fullTitle, description, canonical, ogImage, ogType, articleData, keywords, noindex, url, defaultOgImage, siteName, structuredData]);
+  }, [fullTitle, description, canonical, ogImage, ogImageWidth, ogImageHeight, ogType, articleData, keywords, noindex, url, defaultOgImage, siteName, structuredData, twitterHandle, imageAlt]);
 
   return null;
 }
