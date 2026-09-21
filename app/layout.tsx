@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { CookieConsent } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Afrigenomix - DNA Testing Platform for Africa",
@@ -19,6 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased" suppressHydrationWarning>
         {children}
+        <CookieConsent />
       </body>
     </html>
   );

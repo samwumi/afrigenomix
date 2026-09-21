@@ -10,3 +10,4 @@ export { StatusBadge } from './StatusBadge';
 export { Timeline } from './Timeline';
 export { Alert } from './Alert';
 export { Spinner, LoadingScreen } from './Spinner';
+export { CookieConsent } from './CookieConsent';
