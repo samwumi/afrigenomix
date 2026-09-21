@@ -138,12 +138,12 @@ export default function EditArticlePage() {
       reader.onloadend = async () => {
         const base64String = reader.result as string;
         
-        const formData = new FormData();
-        formData.append('image', base64String.split(',')[1]);
+        const uploadFormData = new FormData();
+        uploadFormData.append('image', base64String.split(',')[1]);
         
         const response = await fetch('https://api.imgbb.com/1/upload?key=d3c3f6421e6f4d0d5e0c5a8b4e5c3f2a', {
           method: 'POST',
-          body: formData,
+          body: uploadFormData,
         });
 
         const result = await response.json();

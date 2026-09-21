@@ -89,23 +89,23 @@ export default function NewArticlePage() {
         const base64String = reader.result as string;
         
         // Upload to imgbb API (free, no account needed)
-        const formData = new FormData();
-        formData.append('image', base64String.split(',')[1]);
+        const uploadFormData = new FormData();
+        uploadFormData.append('image', base64String.split(',')[1]);
         
         const response = await fetch('https://api.imgbb.com/1/upload?key=d3c3f6421e6f4d0d5e0c5a8b4e5c3f2a', {
           method: 'POST',
-          body: formData,
+          body: uploadFormData,
         });
 
         const result = await response.json();
 
         if (result.success) {
           const imageUrl = result.data.url;
-          setFormData({ ...formData, featuredImage: imageUrl });
+          setFormData(prev => ({ ...prev, featuredImage: imageUrl }));
           setImagePreview(imageUrl);
         } else {
           // Fallback: use base64 (not recommended for production)
-          setFormData({ ...formData, featuredImage: base64String });
+          setFormData(prev => ({ ...prev, featuredImage: base64String }));
           setImagePreview(base64String);
           alert('Image uploaded locally (base64). For best performance, consider using an image URL from Unsplash/Pexels.');
         }
