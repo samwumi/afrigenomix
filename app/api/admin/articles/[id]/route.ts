@@ -118,6 +118,7 @@ export async function PUT(
       category,
       metaTitle,
       metaDescription,
+      featuredImage,
       status,
       isFeatured,
       publishedAt,
@@ -160,6 +161,7 @@ export async function PUT(
         ...(category && { category }),
         ...(metaTitle !== undefined && { metaTitle: metaTitle || null }),
         ...(metaDescription !== undefined && { metaDescription: metaDescription || null }),
+        ...(featuredImage !== undefined && { featuredImage: featuredImage || null }),
         ...(status && { status }),
         ...(isFeatured !== undefined && { isFeatured }),
         ...(publishedAt !== undefined && {
