@@ -406,7 +406,7 @@ model Article {
   excerpt         String?         @db.Text
   category        ArticleCategory
   authorId        String?
-  featuredImage   String?
+  featuredImage   String?         @db.LongText
   status          ArticleStatus   @default(DRAFT)
   isFeatured      Boolean         @default(false)
   viewCount       Int             @default(0)
