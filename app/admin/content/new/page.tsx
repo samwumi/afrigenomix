@@ -83,46 +83,75 @@ export default function NewArticlePage() {
     setIsUploadingImage(true);
 
     try {
-      // Convert image to base64 or upload to imgbb (free image hosting)
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64String = reader.result as string;
         
-        // Try uploading to imgbb first
+        // Try multiple free hosting services
+        
+        // Option 1: Try Cloudinary unsigned upload
         try {
-          const uploadFormData = new FormData();
-          uploadFormData.append('image', base64String.split(',')[1]);
+          const cloudinaryFormData = new FormData();
+          cloudinaryFormData.append('file', base64String);
+          cloudinaryFormData.append('upload_preset', 'ml_default'); // Cloudinary's demo preset
           
-          const response = await fetch('https://api.imgbb.com/1/upload?key=d3c3f6421e6f4d0d5e0c5a8b4e5c3f2a', {
+          const cloudinaryResponse = await fetch('https://api.cloudinary.com/v1_1/demo/image/upload', {
             method: 'POST',
-            body: uploadFormData,
+            body: cloudinaryFormData,
           });
 
-          if (response.ok) {
-            const result = await response.json();
-            if (result.success && result.data?.url) {
-              const imageUrl = result.data.url;
+          if (cloudinaryResponse.ok) {
+            const result = await cloudinaryResponse.json();
+            if (result.secure_url) {
+              const imageUrl = result.secure_url;
               setFormData(prev => ({ ...prev, featuredImage: imageUrl }));
               setImagePreview(imageUrl);
-              console.log('Image uploaded to imgbb:', imageUrl);
+              console.log('Image uploaded to Cloudinary:', imageUrl);
               setIsUploadingImage(false);
               return;
             }
           }
-        } catch (uploadError) {
-          console.log('imgbb upload failed, using base64 fallback');
+        } catch (cloudinaryError) {
+          console.log('Cloudinary upload failed, trying freeimage.host...');
         }
 
-        // Fallback: use base64 (not recommended for production)
+        // Option 2: Try freeimage.host
+        try {
+          const freeimageFormData = new FormData();
+          freeimageFormData.append('source', base64String.split(',')[1]);
+          freeimageFormData.append('type', 'file');
+          freeimageFormData.append('action', 'upload');
+          
+          const freeimageResponse = await fetch('https://freeimage.host/api/1/upload?key=6d207e02198a847aa98d0a2a901485a5', {
+            method: 'POST',
+            body: freeimageFormData,
+          });
+
+          if (freeimageResponse.ok) {
+            const result = await freeimageResponse.json();
+            if (result.image?.url) {
+              const imageUrl = result.image.url;
+              setFormData(prev => ({ ...prev, featuredImage: imageUrl }));
+              setImagePreview(imageUrl);
+              console.log('Image uploaded to freeimage.host:', imageUrl);
+              setIsUploadingImage(false);
+              return;
+            }
+          }
+        } catch (freeimageError) {
+          console.log('freeimage.host upload failed, using base64...');
+        }
+
+        // Fallback: Store base64 but warn user
         setFormData(prev => ({ ...prev, featuredImage: base64String }));
         setImagePreview(base64String);
-        console.log('Image stored as base64 (first 100 chars):', base64String.substring(0, 100));
-        alert('Image uploaded locally. Note: Base64 images work but may be slower. Consider using an image URL from Unsplash for better performance.');
+        console.log('Image stored as base64');
+        alert('⚠️ Upload service temporarily unavailable. Image saved but may not display correctly. Please use "🔗 Use URL" and paste an image link from Unsplash for best results.');
       };
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload image. Please try using an image URL instead.');
+      alert('Failed to upload image. Please try using an image URL from Unsplash instead.');
     } finally {
       setIsUploadingImage(false);
     }

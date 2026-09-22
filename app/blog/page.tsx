@@ -240,12 +240,21 @@ export default function BlogPage() {
                     <div className="md:col-span-3 relative h-64 md:h-[400px] overflow-hidden">
                       {featuredArticle.featuredImage ? (
                         <>
-                          <Image
-                            src={featuredArticle.featuredImage}
-                            alt={featuredArticle.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
+                          {featuredArticle.featuredImage.startsWith('data:') ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={featuredArticle.featuredImage}
+                              alt={featuredArticle.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          ) : (
+                            <Image
+                              src={featuredArticle.featuredImage}
+                              alt={featuredArticle.title}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                           <div className="absolute bottom-4 left-4">
                             <Badge className="bg-teal-500 text-white border-0 shadow-lg">
@@ -365,12 +374,21 @@ export default function BlogPage() {
                       <div className="relative h-56 overflow-hidden">
                         {article.featuredImage ? (
                           <>
-                            <Image
-                              src={article.featuredImage}
-                              alt={article.title}
-                              fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
+                            {article.featuredImage.startsWith('data:') ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={article.featuredImage}
+                                alt={article.title}
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              />
+                            ) : (
+                              <Image
+                                src={article.featuredImage}
+                                alt={article.title}
+                                fill
+                                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              />
+                            )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                           </>
                         ) : (

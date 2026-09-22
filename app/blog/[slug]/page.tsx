@@ -258,13 +258,23 @@ export default function ArticlePage() {
         {/* Hero Image Section */}
         {article.featuredImage && (
           <div className="relative w-full h-[60vh] min-h-[400px] max-h-[600px] bg-navy-900">
-            <Image
-              src={article.featuredImage}
-              alt={article.title}
-              fill
-              priority
-              className="object-cover opacity-90"
-            />
+            {article.featuredImage.startsWith('data:') ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={article.featuredImage}
+                alt={article.title}
+                className="w-full h-full object-cover opacity-90"
+              />
+            ) : (
+              <Image
+                src={article.featuredImage}
+                alt={article.title}
+                fill
+                priority
+                className="object-cover opacity-90"
+                unoptimized={article.featuredImage.startsWith('data:')}
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
             
             {/* Back Button Overlay */}
@@ -541,12 +551,21 @@ export default function ArticlePage() {
                         <div className="relative h-48 overflow-hidden">
                           {related.featuredImage ? (
                             <>
-                              <Image
-                                src={related.featuredImage}
-                                alt={related.title}
-                                fill
-                                className="object-cover group-hover:scale-110 transition-transform duration-500"
-                              />
+                              {related.featuredImage.startsWith('data:') ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={related.featuredImage}
+                                  alt={related.title}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                              ) : (
+                                <Image
+                                  src={related.featuredImage}
+                                  alt={related.title}
+                                  fill
+                                  className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                              )}
                               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                             </>
                           ) : (
