@@ -47,6 +47,9 @@ export function Header() {
             <Link href="/tests" className="text-gray-700 hover:text-navy-900 transition-colors font-medium">
               Tests
             </Link>
+            <Link href="/how-it-works" className="text-gray-700 hover:text-navy-900 transition-colors font-medium">
+              How It Works
+            </Link>
             <Link href="/about" className="text-gray-700 hover:text-navy-900 transition-colors font-medium">
               About
             </Link>
@@ -121,6 +124,13 @@ export function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Tests
+            </Link>
+            <Link
+              href="/how-it-works"
+              className="block px-4 py-2 text-gray-700 hover:text-navy-900 hover:bg-gray-50 rounded-lg transition-colors font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              How It Works
             </Link>
             <Link
               href="/about"

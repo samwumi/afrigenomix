@@ -61,10 +61,13 @@ export default function HomePage() {
               {/* Left: Text Content */}
               <div>
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-navy-900 mb-6 leading-tight">
-                  Truth Through Science
+                  Your DNA Testing Coordinator
                 </h1>
-                <p className="text-xl md:text-2xl text-gray-600 mb-8">
-                  Connect with trusted DNA testing laboratories across Africa for paternity, immigration, and legal testing
+                <p className="text-xl md:text-2xl text-gray-600 mb-4">
+                  We connect you with accredited laboratories across Africa for reliable, affordable DNA testing
+                </p>
+                <p className="text-lg text-gray-500 mb-8">
+                  Afrigenomix is not a laboratory. We're a platform that helps you access trusted, accredited DNA testing facilities for paternity, immigration, legal, and other genetic tests.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link href="/test-finder">
@@ -161,6 +164,82 @@ export default function HomePage() {
                   <p className="text-gray-600 leading-relaxed">
                     Embassy-approved testing for UK, USA, and Canadian visa applications
                   </p>
+                </div>
+              </div>
+            </div>
+          </Container>
+        </section>
+
+        {/* Trust & Transparency Section */}
+        <section className="py-20 bg-white border-y border-gray-200">
+          <Container>
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-navy-900 mb-4">
+                  How Afrigenomix Works
+                </h2>
+                <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+                  We're not a laboratory. We're a trusted platform that connects you with accredited DNA testing facilities across Africa, handles coordination, and ensures you get reliable results.
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-8 mb-12">
+                <div className="bg-teal-50 p-8 rounded-2xl border-2 border-teal-100">
+                  <h3 className="text-2xl font-bold text-navy-900 mb-4">What We Do</h3>
+                  <ul className="space-y-3 text-gray-700">
+                    <li className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+                      <span>Connect you with accredited laboratories in your region</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+                      <span>Coordinate sample collection through verified partners</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+                      <span>Provide guidance on test requirements and processes</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
+                      <span>Deliver your results securely from the laboratory</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-blue-50 p-8 rounded-2xl border-2 border-blue-100">
+                  <h3 className="text-2xl font-bold text-navy-900 mb-4">Our Laboratory Partners</h3>
+                  <ul className="space-y-3 text-gray-700">
+                    <li className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <span>ISO 17025 accredited facilities</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <span>Embassy-approved for immigration testing</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <span>Court-admissible chain of custody procedures</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                      <span>Strict data privacy and security protocols</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-8 rounded-2xl border border-gray-200">
+                <h3 className="text-xl font-bold text-navy-900 mb-4 text-center">Your Data & Privacy</h3>
+                <p className="text-gray-700 text-center max-w-3xl mx-auto">
+                  Your genetic data is processed and stored exclusively by the accredited laboratory performing your test. Afrigenomix coordinates your case but does not store or access your genetic information. All laboratories follow strict data protection regulations and maintain secure facilities.
+                </p>
+                <div className="text-center mt-6">
+                  <Link href="/privacy-policy">
+                    <span className="text-teal-600 hover:text-teal-700 font-semibold">
+                      Read our Privacy Policy →
+                    </span>
+                  </Link>
                 </div>
               </div>
             </div>

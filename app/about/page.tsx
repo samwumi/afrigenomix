@@ -76,15 +76,18 @@ export default function AboutPage() {
 
             {/* Story Section */}
             <div className="prose prose-lg max-w-none mb-16">
-              <h2 className="text-3xl font-bold text-navy-900 mb-6">Our Story</h2>
+              <h2 className="text-3xl font-bold text-navy-900 mb-6">Who We Are</h2>
               <p className="text-gray-700 leading-relaxed mb-4">
-                Afrigenomix was founded with a clear purpose: to bridge the gap in DNA testing accessibility across Africa. We recognized that while DNA testing technology has advanced globally, many Africans face significant barriers in accessing these crucial services.
+                <strong>Afrigenomix is a DNA testing coordination platform, not a laboratory.</strong> We connect individuals and families across Africa with accredited, certified DNA testing facilities.
               </p>
               <p className="text-gray-700 leading-relaxed mb-4">
-                Beyond providing testing services, we are passionate advocates for legislative reform. Paternity fraud affects countless individuals and families, yet it remains largely unaddressed by legal systems across the continent. We are working to change that.
+                We recognized that while DNA testing technology is crucial for paternity verification, immigration applications, legal cases, and medical purposes, many Africans face significant barriers in accessing these services. Navigating laboratory options, understanding test requirements, coordinating sample collection, and ensuring court-admissible results can be overwhelming.
+              </p>
+              <p className="text-gray-700 leading-relaxed mb-4">
+                That's where Afrigenomix comes in. We partner with ISO 17025 accredited laboratories across Africa to simplify the DNA testing process. We handle coordination, provide guidance, arrange sample collection through verified partners, and ensure you receive reliable, legally recognized results.
               </p>
               <p className="text-gray-700 leading-relaxed">
-                Through our network of trusted laboratories, educational resources, and advocacy campaigns, we are building a future where DNA testing is accessible to all and where legal protections exist for victims of paternity fraud.
+                Beyond testing coordination, we are passionate advocates for legislative reform. Paternity fraud affects countless individuals and families, yet it remains largely unaddressed by legal systems across the continent. We are working to change that through education, awareness campaigns, and policy advocacy.
               </p>
             </div>
 
