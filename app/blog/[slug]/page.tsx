@@ -257,56 +257,64 @@ export default function ArticlePage() {
       <main className="flex-1">
         {/* Hero Image Section */}
         {article.featuredImage && (
-          <div className="relative w-full h-[60vh] min-h-[400px] max-h-[600px] bg-navy-900">
-            {article.featuredImage.startsWith('data:') ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={article.featuredImage}
-                alt={article.title}
-                className="w-full h-full object-cover opacity-90"
-              />
-            ) : (
-              <Image
-                src={article.featuredImage}
-                alt={article.title}
-                fill
-                priority
-                className="object-cover opacity-90"
-                unoptimized={article.featuredImage.startsWith('data:')}
-              />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-            
-            {/* Back Button Overlay */}
-            <div className="absolute top-8 left-0 right-0 z-10">
-              <Container>
+          <div className="relative w-full">
+            {/* Image Container */}
+            <div className="relative w-full h-[50vh] md:h-[60vh] max-h-[500px] bg-navy-900">
+              {article.featuredImage.startsWith('data:') ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={article.featuredImage}
+                  alt={article.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Image
+                  src={article.featuredImage}
+                  alt={article.title}
+                  fill
+                  priority
+                  className="object-cover"
+                  unoptimized={article.featuredImage.startsWith('data:')}
+                />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70" />
+              
+              {/* Back Button - Top Left */}
+              <div className="absolute top-4 left-4 z-10">
                 <Link href="/blog">
-                  <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 group">
-                    <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                    Back to Blog
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="bg-white/90 backdrop-blur-sm border-white text-navy-900 hover:bg-white shadow-lg"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    <span className="hidden sm:inline">Back to Blog</span>
+                    <span className="sm:hidden">Back</span>
                   </Button>
                 </Link>
-              </Container>
+              </div>
+              
+              {/* Category Badge - Bottom Left */}
+              <div className="absolute bottom-4 left-4">
+                <Badge className="bg-teal-500 text-white border-0 shadow-lg text-sm px-4 py-2">
+                  {categoryInfo.label}
+                </Badge>
+              </div>
             </div>
-
-            {/* Title Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 pb-12">
-              <Container>
-                <div className="max-w-4xl">
-                  <Badge className="bg-teal-500 text-white border-0 mb-4 shadow-lg">
-                    {categoryInfo.label}
-                  </Badge>
-                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-2xl">
-                    {article.title}
-                  </h1>
-                  {article.excerpt && (
-                    <p className="text-lg md:text-xl text-gray-200 drop-shadow-lg">
-                      {article.excerpt}
-                    </p>
-                  )}
-                </div>
-              </Container>
-            </div>
+            
+            {/* Title Section - Below Image */}
+            <Container className="py-8 md:py-12">
+              <div className="max-w-4xl">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-navy-900 mb-4 leading-tight">
+                  {article.title}
+                </h1>
+                {article.excerpt && (
+                  <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
+                    {article.excerpt}
+                  </p>
+                )}
+              </div>
+            </Container>
           </div>
         )}
 
@@ -342,44 +350,47 @@ export default function ArticlePage() {
 
           <div className="max-w-7xl mx-auto">
             {/* Meta Info Bar */}
-            <div className="flex flex-wrap items-center gap-4 md:gap-6 py-6 mb-8 border-y border-gray-200">
+            <div className="flex flex-wrap items-center gap-3 md:gap-6 py-6 mb-8 border-y border-gray-200">
               {article.author && (
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-navy-700 rounded-full flex items-center justify-center flex-shrink-0">
-                    <User className="w-6 h-6 text-white" />
+                <div className="flex items-center gap-3 min-w-0 flex-shrink-0">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-teal-500 to-navy-700 rounded-full flex items-center justify-center flex-shrink-0">
+                    <User className="w-5 h-5 md:w-6 md:h-6 text-white" />
                   </div>
-                  <div>
-                    <div className="font-semibold text-navy-900">{article.author.name}</div>
+                  <div className="min-w-0">
+                    <div className="font-semibold text-navy-900 text-sm md:text-base truncate">{article.author.name}</div>
                     {article.author.title && (
-                      <div className="text-sm text-gray-600">{article.author.title}</div>
+                      <div className="text-xs md:text-sm text-gray-600 truncate">{article.author.title}</div>
                     )}
                   </div>
                 </div>
               )}
               
-              <div className="flex items-center gap-1.5 text-gray-600">
-                <Calendar className="w-4 h-4" />
-                <span className="text-sm">{formatDate(article.publishedAt)}</span>
-              </div>
-              
-              <div className="flex items-center gap-1.5 text-gray-600">
-                <Clock className="w-4 h-4" />
-                <span className="text-sm">{article.readTime} min read</span>
-              </div>
-              
-              <div className="flex items-center gap-1.5 text-gray-600">
-                <Eye className="w-4 h-4" />
-                <span className="text-sm">{article.viewCount.toLocaleString()} views</span>
+              <div className="flex flex-wrap items-center gap-3 md:gap-4 text-xs md:text-sm text-gray-600">
+                <div className="flex items-center gap-1.5 whitespace-nowrap">
+                  <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">{formatDate(article.publishedAt)}</span>
+                  <span className="sm:hidden">{new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                </div>
+                
+                <div className="flex items-center gap-1.5 whitespace-nowrap">
+                  <Clock className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                  <span>{article.readTime} min</span>
+                </div>
+                
+                <div className="flex items-center gap-1.5 whitespace-nowrap">
+                  <Eye className="w-3.5 h-3.5 md:w-4 md:h-4 flex-shrink-0" />
+                  <span>{article.viewCount.toLocaleString()}</span>
+                </div>
               </div>
 
               {/* Share Button */}
-              <div className="ml-auto relative">
+              <div className="ml-auto relative flex-shrink-0">
                 <button
                   onClick={() => setShowShareMenu(!showShareMenu)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors font-semibold text-sm"
+                  className="flex items-center gap-2 px-3 md:px-4 py-2 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors font-semibold text-xs md:text-sm whitespace-nowrap"
                 >
-                  <Share2 className="w-4 h-4" />
-                  Share
+                  <Share2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  <span className="hidden sm:inline">Share</span>
                 </button>
 
                 {showShareMenu && (
