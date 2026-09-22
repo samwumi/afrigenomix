@@ -34,6 +34,14 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'iili.io',
       },
+      {
+        protocol: 'https',
+        hostname: 'i.imgur.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.imgur.com',
+      },
     ],
     unoptimized: false,
   },

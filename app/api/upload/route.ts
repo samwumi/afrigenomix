@@ -18,7 +18,34 @@ export async function POST(request: NextRequest) {
     const base64 = buffer.toString('base64');
     const dataUrl = `data:${file.type};base64,${base64}`;
 
-    // Try Cloudinary first
+    // Try Imgur first (most reliable, no API key needed for anonymous upload)
+    try {
+      const imgurResponse = await fetch('https://api.imgur.com/3/image', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Client-ID 546c25a59c58ad7',
+        },
+        body: JSON.stringify({
+          image: base64,
+          type: 'base64',
+        }),
+      });
+
+      if (imgurResponse.ok) {
+        const result = await imgurResponse.json();
+        if (result.data?.link) {
+          return NextResponse.json({
+            success: true,
+            url: result.data.link,
+            service: 'imgur',
+          });
+        }
+      }
+    } catch (imgurError) {
+      console.error('Imgur upload failed:', imgurError);
+    }
+
+    // Try Cloudinary second
     try {
       const cloudinaryFormData = new FormData();
       cloudinaryFormData.append('file', dataUrl);
