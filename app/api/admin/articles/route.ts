@@ -148,6 +148,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    
+    console.log('=== Article Creation Request ===');
+    console.log('Featured Image from body:', body.featuredImage ? `${body.featuredImage.substring(0, 100)}...` : 'null');
+    
     const {
       title,
       slug,
@@ -166,6 +170,8 @@ export async function POST(request: NextRequest) {
       authorBio,
       authorEmail,
     } = body;
+    
+    console.log('Featured Image after destructure:', featuredImage ? `${featuredImage.substring(0, 100)}...` : 'null');
 
     // Validate required fields
     if (!title || !slug || !content || !category) {
@@ -231,6 +237,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create article
+    console.log('Creating article with featuredImage:', featuredImage ? `${featuredImage.substring(0, 100)}...` : 'null');
+    
     const article = await prisma.article.create({
       data: {
         title,
@@ -247,6 +255,9 @@ export async function POST(request: NextRequest) {
         authorId: finalAuthorId,
       },
     });
+    
+    console.log('Article created with ID:', article.id);
+    console.log('Article featuredImage saved:', article.featuredImage ? `${article.featuredImage.substring(0, 100)}...` : 'null');
 
     return NextResponse.json({
       success: true,
