@@ -90,8 +90,8 @@ export default function ContactPage() {
                   <Mail className="w-8 h-8 text-teal-600" />
                 </div>
                 <h3 className="text-lg font-bold text-navy-900 mb-2">Email Us</h3>
-                <a href="mailto:info@afrigenomix.com" className="text-teal-600 hover:text-teal-700">
-                  info@afrigenomix.com
+                <a href="mailto:service@afrigenomix.com" className="text-teal-600 hover:text-teal-700">
+                  service@afrigenomix.com
                 </a>
               </Card>
 
@@ -100,8 +100,8 @@ export default function ContactPage() {
                   <Phone className="w-8 h-8 text-blue-600" />
                 </div>
                 <h3 className="text-lg font-bold text-navy-900 mb-2">Call Us</h3>
-                <a href="tel:+2348012345678" className="text-blue-600 hover:text-blue-700">
-                  +234 801 234 5678
+                <a href="tel:+2348111180192" className="text-blue-600 hover:text-blue-700">
+                  0811 118 0192
                 </a>
               </Card>
 
@@ -163,7 +163,7 @@ export default function ContactPage() {
                         value={formData.phone}
                         onChange={handleChange}
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-colors"
-                        placeholder="+234 801 234 5678"
+                        placeholder="0811 118 0192"
                       />
                     </div>
 
