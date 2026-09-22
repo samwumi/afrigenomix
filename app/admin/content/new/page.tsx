@@ -83,93 +83,33 @@ export default function NewArticlePage() {
     setIsUploadingImage(true);
 
     try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64String = reader.result as string;
+      console.log('Uploading image via server API...');
+      
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: uploadFormData,
+      });
+
+      const result = await response.json();
+      console.log('Upload response:', result);
+
+      if (result.success && result.url) {
+        setFormData(prev => ({ ...prev, featuredImage: result.url }));
+        setImagePreview(result.url);
+        console.log(`✅ Image uploaded successfully via ${result.service}:`, result.url);
         
-        // Try multiple free hosting services
-        
-        // Option 1: Try Cloudinary unsigned upload
-        try {
-          console.log('Attempting Cloudinary upload...');
-          const cloudinaryFormData = new FormData();
-          cloudinaryFormData.append('file', base64String);
-          cloudinaryFormData.append('upload_preset', 'ml_default'); // Cloudinary's demo preset
-          
-          const cloudinaryResponse = await fetch('https://api.cloudinary.com/v1_1/demo/image/upload', {
-            method: 'POST',
-            body: cloudinaryFormData,
-          });
-
-          console.log('Cloudinary response status:', cloudinaryResponse.status);
-          
-          if (cloudinaryResponse.ok) {
-            const result = await cloudinaryResponse.json();
-            console.log('Cloudinary response:', result);
-            if (result.secure_url) {
-              const imageUrl = result.secure_url;
-              setFormData(prev => ({ ...prev, featuredImage: imageUrl }));
-              setImagePreview(imageUrl);
-              console.log('✅ Image uploaded to Cloudinary:', imageUrl);
-              setIsUploadingImage(false);
-              return;
-            }
-          } else {
-            const errorText = await cloudinaryResponse.text();
-            console.log('Cloudinary error response:', errorText);
-          }
-        } catch (cloudinaryError) {
-          console.error('Cloudinary upload error:', cloudinaryError);
-          console.log('Trying freeimage.host...');
+        if (result.warning) {
+          alert(`⚠️ ${result.warning}`);
         }
-
-        // Option 2: Try freeimage.host
-        try {
-          console.log('Attempting freeimage.host upload...');
-          const freeimageFormData = new FormData();
-          freeimageFormData.append('source', base64String.split(',')[1]);
-          freeimageFormData.append('type', 'file');
-          freeimageFormData.append('action', 'upload');
-          
-          const freeimageResponse = await fetch('https://freeimage.host/api/1/upload?key=6d207e02198a847aa98d0a2a901485a5', {
-            method: 'POST',
-            body: freeimageFormData,
-          });
-
-          console.log('Freeimage.host response status:', freeimageResponse.status);
-
-          if (freeimageResponse.ok) {
-            const result = await freeimageResponse.json();
-            console.log('Freeimage.host response:', result);
-            if (result.image?.url) {
-              const imageUrl = result.image.url;
-              setFormData(prev => ({ ...prev, featuredImage: imageUrl }));
-              setImagePreview(imageUrl);
-              console.log('✅ Image uploaded to freeimage.host:', imageUrl);
-              setIsUploadingImage(false);
-              return;
-            }
-          } else {
-            const errorText = await freeimageResponse.text();
-            console.log('Freeimage.host error response:', errorText);
-          }
-        } catch (freeimageError) {
-          console.error('Freeimage.host upload error:', freeimageError);
-          console.log('Using base64 fallback...');
-        }
-
-        // Fallback: Store base64 but warn user
-        console.log('⚠️ All upload services failed, storing as base64');
-        setFormData(prev => ({ ...prev, featuredImage: base64String }));
-        setImagePreview(base64String);
-        console.log('Image stored as base64 (length:', base64String.length, 'chars)');
-        alert('⚠️ Upload service temporarily unavailable. Image saved but may not display correctly. Please use "🔗 Use URL" and paste an image link from Unsplash for best results.');
-        setIsUploadingImage(false);
-      };
-      reader.readAsDataURL(file);
+      } else {
+        throw new Error(result.error || 'Upload failed');
+      }
     } catch (error) {
       console.error('Upload error:', error);
-      alert('Failed to upload image. Please try using an image URL from Unsplash instead.');
+      alert('Failed to upload image. Please try again or use "🔗 Use URL" option.');
     } finally {
       setIsUploadingImage(false);
     }
