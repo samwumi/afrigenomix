@@ -1,183 +1,148 @@
-# 🚀 Afrigenomix - Quick Start Guide
+# 🚀 Quick Start: AI Content Automation
 
-## Start the Application
+Get your AI content system running in 5 minutes!
 
-```bash
-cd afrigenomix
-npm run dev
-```
+## Step 1: Get OpenAI API Key (2 minutes)
 
-Open: **http://localhost:3000**
+1. Visit: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+2. Click **"Create new secret key"**
+3. Name it: "Afrigenomix Blog"
+4. Copy the key (starts with `sk-...`)
 
----
-
-## 🧪 Test Accounts
-
-Password for all: **Password123!**
-
-- **admin@afrigenomix.com** - Super Admin
-- **john.doe@example.com** - Customer with test case
-- **sarah.johnson@example.com** - New customer
-- **lab@genetech.ng** - Lab partner
-- **collection@medcenter.ng** - Collection partner
+⚠️ **Save it now** - you can't see it again!
 
 ---
 
-## 📍 Key Pages to Test
+## Step 2: Add to Production Environment (1 minute)
 
-### Public Pages
-- **/** - Premium homepage with animations
-- **/test-finder** - Visual questionnaire (6 steps)
-- **/tests** - Test catalogue with filters
-- **/tests/paternity-dna-test** - Example test detail page
+### On Hostinger:
 
-### Authentication
-- **/login** - Sign in
-- **/register** - Create account
+1. **Login to Hostinger Control Panel**
+2. **Go to:** Website → Advanced → Environment Variables
+3. **Add New Variable:**
+   - Name: `OPENAI_API_KEY`
+   - Value: `sk-your-key-here`
+4. **Save Changes**
+5. **Restart your Node.js app**
 
-### Dashboard (after login)
-- **/dashboard** - Customer dashboard (coming soon)
+### Locally (for testing):
 
----
-
-## 🎨 What's New
-
-### ✅ Premium Design Upgrades
-1. **Enhanced hero sections** - Large typography, animations, DNA patterns
-2. **Laboratory network showcase** - Verified partner cards, "How It Works"
-3. **Premium test cards** - Gradient headers, icons, hover effects
-4. **Visual Test Finder** - Large clickable cards, progress tracking
-5. **Improved typography** - Consistent hierarchy, responsive scaling
-6. **Smooth animations** - Hover effects, transitions, micro-interactions
-7. **Mobile optimized** - Perfect responsiveness, touch-friendly
-8. **Polished catalogue** - Enhanced filters, card designs, CTAs
-
-### 🎯 Business Model
-**Platform Positioning Maintained:**
-- Afrigenomix **coordinates** DNA testing
-- **Connects** customers to verified laboratories
-- Testing **conducted by laboratory partners**
-- Clear separation throughout the application
-
----
-
-## 🛠️ Database Management
-
-### View Database
-```bash
-cd afrigenomix
-npx prisma studio
-```
-Opens at http://localhost:5555
-
-### Reset Database
-```bash
-cd afrigenomix
-npm run db:seed
+Add to `.env` file:
+```env
+OPENAI_API_KEY="sk-your-actual-key-here"
 ```
 
 ---
 
-## 📊 What to Check
+## Step 3: Test AI Features (2 minutes)
 
-### Homepage
-- [ ] Animated trust badge (pulse effect)
-- [ ] Wave separator between sections
-- [ ] Laboratory partner cards with hover
-- [ ] Test discovery cards with gradients
-- [ ] Mobile: Hamburger menu works
+### Test 1: Generate Your First Article
 
-### Test Finder
-- [ ] Progress bar with step labels
-- [ ] All 6 steps work with card selection
-- [ ] Recommendation shows after completion
-- [ ] "Start over" button with rotation
-- [ ] Mobile: Cards stack properly
+1. **Login:** Visit `https://afrigenomix.com/login`
+   - Use your admin credentials
 
-### Test Catalogue
-- [ ] Sticky category filter
-- [ ] Category selection animations
-- [ ] Test cards hover effects
-- [ ] Empty state displays correctly
-- [ ] Mobile: Grid adapts to screen
+2. **Navigate:** Go to `https://afrigenomix.com/admin/ai-content`
 
----
+3. **Generate Article:**
+   - Click a topic suggestion OR enter custom topic
+   - Select category: "DNA_EDUCATION"
+   - Select tone: "Professional"
+   - Click **"Generate Article"**
 
-## 🐛 Troubleshooting
+4. **Wait 10-15 seconds** ⏳
 
-### Dev Server Won't Start
-```bash
-cd afrigenomix
-npm install
-npx prisma generate
-npm run dev
-```
+5. **Success!** Article created as DRAFT
+   - View at: `/admin/content`
 
-### Database Issues
-```bash
-cd afrigenomix
-npx prisma db push
-npm run db:seed
-```
+**Cost:** ~$0.01 ✅
 
-### Port Already in Use
-Check terminal output - Next.js will use port 3001 or 3002 automatically
+### Test 2: Comment Moderation
+
+1. **Visit any blog post** on your site
+2. **Submit a test comment:**
+   - Name: "Test User"
+   - Email: "test@example.com"
+   - Comment: "Great article! Very helpful."
+3. **AI auto-moderates in background**
+4. **Check:** `/admin/ai-moderation`
+   - See your comment (likely APPROVED)
+   - You can override if needed
+
+**Cost:** ~$0.0001 ✅
 
 ---
 
-## 📚 Documentation
+## ✅ You're Done!
 
-- **PREMIUM_DESIGN_SUMMARY.md** - Complete upgrade overview
-- **DESIGN_UPGRADE_COMPLETE.md** - Detailed feature list
-- **LOCAL_TEST_GUIDE.md** - Full testing checklist
-- **DESIGN_EXCELLENCE_PLAN.md** - Design specifications
+Your AI content system is live! 🎉
 
----
+### What You Can Do Now:
 
-## ✨ Quick Design Reference
+✅ **Generate Blog Posts** → `/admin/ai-content`  
+✅ **Auto-Moderate Comments** → Automatic on submission  
+✅ **Schedule Publishing** → Set future publish dates  
+✅ **Review AI Decisions** → `/admin/ai-moderation`  
 
-### Colors
-- Navy: #102a43 to #334e68
-- Teal: #0ea5e9 to #0284c7
-- Gradients: navy-900 → teal-900
+### Your Costs:
 
-### Typography
-- Display: text-5xl to text-7xl
-- Body: text-lg to text-xl
-- Font: Inter (system fallback)
-
-### Spacing
-- Sections: py-16, py-20, py-24
-- Cards: p-6, p-8
-- Gaps: gap-4, gap-6, gap-8
-
-### Animations
-- Duration: 300ms, 500ms
-- Hover: scale-102, scale-105
-- Shadows: shadow-md → shadow-2xl
+- **$5 OpenAI Credit** = ~500 articles
+- **Monthly Usage:** ~$0.13/month (12 articles + 100 comments)
+- **Credit Lasts:** ~40 months 🎉
 
 ---
 
-## 🎯 Success Metrics
+## 🎯 Next Actions
 
-✅ Premium scientific aesthetic
-✅ Trustworthy presentation
-✅ International credibility
-✅ Mobile-first responsive
-✅ Smooth 60fps animations
-✅ Clear platform positioning
-✅ Verified laboratory partners
-✅ Professional user experience
+### Daily/Weekly:
+- Check `/admin/ai-moderation` for pending comments
+- Review AI-generated articles before publishing
+- Generate new content as needed
+
+### Monthly:
+- Check OpenAI usage: [platform.openai.com/usage](https://platform.openai.com/usage)
+- Review AI moderation accuracy
+- Adjust prompts if needed
 
 ---
 
-## 🚀 Ready to Test!
+## 🚨 Troubleshooting
 
-1. Start dev server: `npm run dev`
-2. Open http://localhost:3000
-3. Test homepage → Test Finder → Test Catalogue
-4. Try different screen sizes
-5. Test authentication flows
-6. Review design consistency
+### "OpenAI API Key Not Found"
+1. ✅ Verify key added to environment variables
+2. ✅ Restart Node.js application
+3. ✅ Check key format: starts with `sk-`
 
-**Enjoy the premium Afrigenomix experience! 🧬**
+### "Unauthorized" Error
+1. ✅ Login as admin at `/login`
+2. ✅ Check JWT token in browser (F12 → Application → localStorage)
+3. ✅ Token might be expired - login again
+
+### "Rate Limit Exceeded"
+1. ✅ Free tier: 3 requests/minute
+2. ✅ Wait 60 seconds between bulk operations
+3. ✅ Consider upgrading OpenAI plan
+
+---
+
+## 📚 Full Documentation
+
+For detailed information, see: **AI_FEATURES.md**
+
+Topics covered:
+- Complete API reference
+- Technical architecture
+- Advanced features
+- Cost optimization
+- Troubleshooting guide
+
+---
+
+## 📞 Need Help?
+
+- **Email:** service@afrigenomix.com
+- **Phone:** 08111180192
+- **GitHub Issues:** [github.com/samwumi/afrigenomix](https://github.com/samwumi/afrigenomix)
+
+---
+
+Made with ❤️ by Afrigenomix Team
