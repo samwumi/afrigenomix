@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import prisma from '@/lib/prisma';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 /**
  * POST /api/ai/generate-article
- * Generate an article using AI based on topic/keywords
+ * Generate an article using Google Gemini AI
  */
 export async function POST(request: NextRequest) {
   try {
@@ -45,194 +45,170 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!OPENAI_API_KEY) {
+    if (!GEMINI_API_KEY) {
       return NextResponse.json(
-        { success: false, error: 'OpenAI API key not configured' },
+        { success: false, error: 'Gemini API key not configured' },
         { status: 500 }
       );
     }
 
     const body = await request.json();
-    const { topic, category, keywords, tone } = body;
+    const { topic, category, tone = 'professional' } = body;
 
-    if (!topic) {
+    if (!topic || !category) {
       return NextResponse.json(
-        { success: false, error: 'Topic is required' },
+        { success: false, error: 'Topic and category are required' },
         { status: 400 }
       );
     }
 
-    // Initialize OpenAI
-    const openai = new OpenAI({
-      apiKey: OPENAI_API_KEY,
-    });
+    // Initialize Gemini
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
-    // Generate article content
-    const prompt = `You are an expert content writer for Afrigenomix, a DNA testing coordination platform in Africa.
+    // Create comprehensive prompt
+    const prompt = `You are a professional content writer for Afrigenomix, a DNA testing coordination platform in Africa.
 
-Write a comprehensive, SEO-optimized blog article about: "${topic}"
-
-Category: ${category || 'DNA Education'}
-Keywords to include: ${keywords || 'DNA testing, Africa, paternity testing'}
-Tone: ${tone || 'Professional, informative, accessible'}
+Generate a comprehensive, SEO-optimized blog article about: ${topic}
 
 Requirements:
-- Write 1,200-1,500 words
-- Use markdown formatting
-- Include an engaging introduction (2-3 paragraphs)
-- Use clear section headings (##)
-- Provide accurate, science-based information
-- Include practical examples relevant to African context
-- End with a clear call-to-action
-- Be accessible to non-scientists
-- Avoid medical advice claims
-- Remember: Afrigenomix is a PLATFORM, not a laboratory
+- Length: 1,200-1,500 words
+- Tone: ${tone}
+- Category: ${category}
+- Target Audience: African readers interested in DNA testing
+- Format: Well-structured markdown with headings (##, ###), bullet points, and clear sections
+- Include: Introduction, 3-5 main sections with detailed content, practical examples, conclusion
+- Focus on: African context, accessibility, trust, scientific accuracy
+- SEO: Naturally incorporate keywords related to the topic
 
-Focus areas for DNA testing content:
-- Accuracy and reliability
-- Legal and immigration applications
-- Process and procedures
-- Privacy and data security
-- Choosing the right test
-- Understanding results
-- Cost and accessibility in Africa
+Article Structure:
+1. Compelling introduction (2-3 paragraphs)
+2. Main content sections with subheadings
+3. Practical examples or case studies
+4. Actionable advice or key takeaways
+5. Strong conclusion with call-to-action
 
-Write the complete article now:`;
+Also generate SEO metadata:
+- Meta title (50-60 characters, include main keyword)
+- Meta description (150-160 characters, compelling summary)
+- Meta keywords (5-8 relevant keywords, comma-separated)
+- Suggested tags (3-5 tags for categorization)
+- Brief excerpt (2-3 sentences for article preview)
 
-    console.log('Generating article with OpenAI...');
+Respond ONLY with valid JSON in this exact format:
+{
+  "title": "Article title here",
+  "content": "Full markdown content here...",
+  "excerpt": "Brief 2-3 sentence summary",
+  "metaTitle": "SEO title 50-60 chars",
+  "metaDescription": "SEO description 150-160 chars",
+  "metaKeywords": "keyword1, keyword2, keyword3",
+  "tags": ["tag1", "tag2", "tag3"]
+}`;
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert content writer specializing in DNA testing and genomics in Africa. Write clear, accurate, SEO-optimized articles.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 3000,
-    });
+    // Generate content
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text();
 
-    const content = completion.choices[0]?.message?.content;
-
-    if (!content) {
+    // Parse JSON response
+    let articleData;
+    try {
+      // Extract JSON from response (Gemini sometimes wraps it in markdown)
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in response');
+      }
+      articleData = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      console.error('Failed to parse Gemini response:', text);
       return NextResponse.json(
-        { success: false, error: 'Failed to generate content' },
+        {
+          success: false,
+          error: 'Failed to parse AI response',
+          details: 'AI returned invalid format',
+        },
         { status: 500 }
       );
     }
 
-    // Generate SEO metadata
-    const metaPrompt = `Based on this article topic: "${topic}"
+    // Generate slug from title
+    const slug = articleData.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
 
-Generate:
-1. SEO-optimized title (max 60 characters)
-2. Meta description (max 155 characters)
-3. Slug (URL-friendly)
-4. 5 keywords
-5. Brief excerpt (2 sentences, max 160 characters)
-
-Format as JSON:
-{
-  "title": "...",
-  "metaDescription": "...",
-  "slug": "...",
-  "keywords": ["...", "...", "...", "...", "..."],
-  "excerpt": "..."
-}`;
-
-    const metaCompletion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'user',
-          content: metaPrompt,
-        },
-      ],
-      temperature: 0.5,
-      max_tokens: 300,
-      response_format: { type: 'json_object' },
+    // Check if slug already exists
+    const existingArticle = await prisma.article.findUnique({
+      where: { slug },
     });
 
-    const metaContent = metaCompletion.choices[0]?.message?.content;
-    let metadata;
-    try {
-      metadata = JSON.parse(metaContent || '{}');
-    } catch (e) {
-      metadata = {
-        title: topic,
-        metaDescription: `Learn about ${topic} and DNA testing in Africa.`,
-        slug: topic.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        keywords: [topic],
-        excerpt: `Comprehensive guide to ${topic}.`,
-      };
+    if (existingArticle) {
+      // Append timestamp to make unique
+      const timestamp = Date.now();
+      articleData.slug = `${slug}-${timestamp}`;
+    } else {
+      articleData.slug = slug;
     }
 
-    // Get or create default author
-    let author = await prisma.contentAuthor.findFirst({
+    // Get or create AI author
+    let aiAuthor = await prisma.contentAuthor.findFirst({
       where: { email: 'ai@afrigenomix.com' },
     });
 
-    if (!author) {
-      author = await prisma.contentAuthor.create({
+    if (!aiAuthor) {
+      aiAuthor = await prisma.contentAuthor.create({
         data: {
           name: 'Afrigenomix Editorial Team',
-          title: 'Content Team',
-          bio: 'The Afrigenomix editorial team is dedicated to providing accurate, science-based information about DNA testing and genomics in Africa.',
           email: 'ai@afrigenomix.com',
+          title: 'AI Content Generator',
+          bio: 'Automated content generation powered by AI',
+          isActive: true,
         },
       });
     }
 
-    // Create article as DRAFT
+    // Create article in database
     const article = await prisma.article.create({
       data: {
-        title: metadata.title || topic,
-        slug: metadata.slug || topic.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        content: content,
-        excerpt: metadata.excerpt || content.substring(0, 160),
-        category: category || 'DNA_EDUCATION',
-        metaTitle: metadata.title,
-        metaDescription: metadata.metaDescription,
-        metaKeywords: metadata.keywords?.join(', ') || topic,
+        title: articleData.title,
+        slug: articleData.slug,
+        content: articleData.content,
+        excerpt: articleData.excerpt,
+        category: category,
+        authorId: aiAuthor.id,
+        metaTitle: articleData.metaTitle,
+        metaDescription: articleData.metaDescription,
+        metaKeywords: articleData.metaKeywords,
         status: 'DRAFT',
-        authorId: author.id,
       },
     });
 
-    console.log('Article generated and saved as draft:', article.id);
+    // Add tags
+    if (articleData.tags && Array.isArray(articleData.tags)) {
+      await Promise.all(
+        articleData.tags.map((tag: string) =>
+          prisma.articleTag.create({
+            data: {
+              articleId: article.id,
+              tag: tag,
+            },
+          })
+        )
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      data: {
-        article: {
-          id: article.id,
-          title: article.title,
-          slug: article.slug,
-          excerpt: article.excerpt,
-          content: article.content,
-          category: article.category,
-          status: article.status,
-        },
-        metadata,
-        usage: {
-          promptTokens: completion.usage?.prompt_tokens || 0,
-          completionTokens: completion.usage?.completion_tokens || 0,
-          totalTokens: completion.usage?.total_tokens || 0,
-          estimatedCost: ((completion.usage?.total_tokens || 0) * 0.00001).toFixed(4),
-        },
-      },
-      message: 'Article generated successfully and saved as draft',
+      data: { article },
+      message: 'Article generated successfully',
+      cost: 'FREE', // Gemini is free!
     });
   } catch (error) {
-    console.error('AI article generation error:', error);
+    console.error('Article generation error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Failed to generate article',
         details: error instanceof Error ? error.message : 'Unknown error',
       },

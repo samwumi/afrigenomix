@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import prisma from '@/lib/prisma';
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 /**
  * POST /api/ai/moderate-comment
- * Automatically moderate a comment using AI
+ * Automatically moderate a comment using Google Gemini AI
  */
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!OPENAI_API_KEY) {
+    if (!GEMINI_API_KEY) {
       // If no API key, default to PENDING status
       return NextResponse.json({
         success: true,
@@ -30,9 +30,8 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const openai = new OpenAI({
-      apiKey: OPENAI_API_KEY,
-    });
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
     const prompt = `You are a content moderator for Afrigenomix, a DNA testing platform.
 
@@ -62,46 +61,50 @@ APPROVE if:
 - Constructive feedback
 - Related to DNA testing topics
 
-Respond ONLY with JSON:
+Respond ONLY with valid JSON in this exact format:
 {
   "decision": "APPROVED" | "REJECTED" | "SPAM",
-  "confidence": 0.0-1.0,
+  "confidence": 0.95,
   "reason": "brief explanation"
 }`;
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a content moderation AI. Respond only with valid JSON.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      temperature: 0.3,
-      max_tokens: 200,
-      response_format: { type: 'json_object' },
-    });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text();
 
-    const result = JSON.parse(completion.choices[0]?.message?.content || '{}');
+    // Parse JSON response
+    let moderationResult;
+    try {
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in response');
+      }
+      moderationResult = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      console.error('Failed to parse Gemini response:', text);
+      // Default to PENDING if parsing fails
+      return NextResponse.json({
+        success: true,
+        decision: 'PENDING',
+        confidence: 0,
+        reason: 'Failed to parse AI response',
+      });
+    }
 
     // Update comment status if commentId provided
     if (commentId) {
       await prisma.comment.update({
         where: { id: commentId },
-        data: { status: result.decision },
+        data: { status: moderationResult.decision },
       });
     }
 
     return NextResponse.json({
       success: true,
-      decision: result.decision,
-      confidence: result.confidence,
-      reason: result.reason,
-      cost: ((completion.usage?.total_tokens || 0) * 0.000001).toFixed(6),
+      decision: moderationResult.decision,
+      confidence: moderationResult.confidence,
+      reason: moderationResult.reason,
+      cost: 'FREE', // Gemini is free!
     });
   } catch (error) {
     console.error('Comment moderation error:', error);
