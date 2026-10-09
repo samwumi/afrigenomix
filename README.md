@@ -32,6 +32,9 @@ Afrigenomix is a **testing access and coordination platform**, not a laboratory.
 
 ### Content & Advocacy
 - Blog platform with 7 categories (DNA Testing, Immigration, Paternity, Legal, Prenatal, Genetics, DNA Science)
+- **🤖 AI Content Automation** - Generate blog posts with OpenAI GPT-4o-mini
+- **🛡️ AI Comment Moderation** - Auto-detect spam and inappropriate content
+- **📅 Auto-Publishing Scheduler** - Schedule articles for future release
 - Featured articles and related content
 - Social sharing (Facebook, Twitter, LinkedIn)
 - View counter and engagement tracking
@@ -68,6 +71,7 @@ Afrigenomix is a **testing access and coordination platform**, not a laboratory.
 - **Backend:** Next.js API Routes
 - **Database:** PostgreSQL with Prisma ORM
 - **Authentication:** JWT with bcrypt
+- **AI Integration:** OpenAI GPT-4o-mini (content generation & moderation)
 - **File Upload:** Secure document handling
 - **Deployment:** Production-ready architecture
 
@@ -100,6 +104,7 @@ cp .env.example .env
 Edit `.env` and configure:
 - Database connection string
 - JWT secret keys
+- OpenAI API key (for AI features - see AI_SETUP_SUMMARY.md)
 - Email provider settings
 - Payment provider settings (when ready)
 
@@ -179,6 +184,19 @@ Afrigenomix is fully optimized for search engines:
 - Optimized for keywords: DNA testing Nigeria, paternity test Africa, immigration DNA, etc.
 
 See [`SEO-IMPLEMENTATION.md`](./SEO-IMPLEMENTATION.md) for complete SEO documentation.
+
+## 🤖 AI Features
+
+Afrigenomix includes AI-powered content automation:
+
+- **AI Article Generator:** Generate blog posts with GPT-4o-mini (~$0.01/article)
+- **AI Comment Moderation:** Auto-detect spam and inappropriate content
+- **Auto-Publishing Scheduler:** Schedule content for future release
+- **Moderation Dashboard:** Review and manage AI decisions
+
+**Quick Start:** See [`QUICK_START.md`](./QUICK_START.md) for 5-minute setup  
+**Full Documentation:** See [`AI_FEATURES.md`](./AI_FEATURES.md) for complete reference  
+**Setup Summary:** See [`AI_SETUP_SUMMARY.md`](./AI_SETUP_SUMMARY.md) for overview
 
 ## Key Workflows
 
