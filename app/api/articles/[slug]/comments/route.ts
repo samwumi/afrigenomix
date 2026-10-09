@@ -109,6 +109,20 @@ export async function POST(
       },
     });
 
+    // Auto-moderate comment with AI in background (don't wait)
+    if (process.env.OPENAI_API_KEY) {
+      fetch('/api/ai/moderate-comment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          commentId: comment.id,
+          name: name.trim(),
+          email: email.trim(),
+          content: content.trim(),
+        }),
+      }).catch(err => console.error('AI moderation failed:', err));
+    }
+
     return NextResponse.json({
       success: true,
       data: { comment: { id: comment.id } },

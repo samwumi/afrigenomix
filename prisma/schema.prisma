@@ -399,27 +399,28 @@ model ContentAuthor {
 }
 
 model Article {
-  id              String          @id @default(uuid())
-  title           String
-  slug            String          @unique
-  content         String          @db.LongText
-  excerpt         String?         @db.Text
-  category        ArticleCategory
-  authorId        String?
-  featuredImage   String?         @db.LongText
-  status          ArticleStatus   @default(DRAFT)
-  isFeatured      Boolean         @default(false)
-  viewCount       Int             @default(0)
-  metaTitle       String?
-  metaDescription String?
-  metaKeywords    String?
-  ogImage         String?
-  publishedAt     DateTime?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  tags            ArticleTag[]
-  comments        Comment[]
-  author          ContentAuthor?  @relation(fields: [authorId], references: [id])
+  id                  String          @id @default(uuid())
+  title               String
+  slug                String          @unique
+  content             String          @db.LongText
+  excerpt             String?         @db.Text
+  category            ArticleCategory
+  authorId            String?
+  featuredImage       String?         @db.LongText
+  status              ArticleStatus   @default(DRAFT)
+  isFeatured          Boolean         @default(false)
+  viewCount           Int             @default(0)
+  metaTitle           String?
+  metaDescription     String?
+  metaKeywords        String?
+  ogImage             String?
+  publishedAt         DateTime?
+  scheduledPublishAt  DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  tags                ArticleTag[]
+  comments            Comment[]
+  author              ContentAuthor?  @relation(fields: [authorId], references: [id])
 
   @@index([authorId], map: "articles_authorId_fkey")
   @@map("articles")
