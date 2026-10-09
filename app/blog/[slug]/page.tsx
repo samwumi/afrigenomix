@@ -58,6 +58,13 @@ interface RelatedArticle {
   publishedAt: string;
 }
 
+interface Comment {
+  id: string;
+  name: string;
+  content: string;
+  createdAt: string;
+}
+
 const CATEGORIES: Record<string, { label: string; color: string }> = {
   DNA_EDUCATION: { label: 'DNA Education', color: 'bg-blue-100 text-blue-700 border-blue-200' },
   PATERNITY_TESTING: { label: 'Paternity Testing', color: 'bg-purple-100 text-purple-700 border-purple-200' },
@@ -73,15 +80,26 @@ export default function ArticlePage() {
   const router = useRouter();
   const [article, setArticle] = useState<Article | null>(null);
   const [relatedArticles, setRelatedArticles] = useState<RelatedArticle[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  
+  // Comment form state
+  const [commentForm, setCommentForm] = useState({
+    name: '',
+    email: '',
+    content: '',
+  });
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [commentSubmitStatus, setCommentSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   useEffect(() => {
     if (params.slug) {
       fetchArticle(params.slug as string);
+      fetchComments(params.slug as string);
     }
   }, [params.slug]);
 
@@ -101,6 +119,53 @@ export default function ArticlePage() {
       console.error('Article fetch error:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchComments = async (slug: string) => {
+    try {
+      const response = await fetch(`/api/articles/${slug}/comments`);
+      const result = await response.json();
+
+      if (result.success) {
+        setComments(result.data.comments);
+      }
+    } catch (err) {
+      console.error('Comments fetch error:', err);
+    }
+  };
+
+  const handleCommentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmittingComment(true);
+    setCommentSubmitStatus('idle');
+
+    try {
+      const response = await fetch(`/api/articles/${params.slug}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(commentForm),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setCommentSubmitStatus('success');
+        setCommentForm({ name: '', email: '', content: '' });
+        // Optionally refresh comments after a delay
+        setTimeout(() => {
+          setCommentSubmitStatus('idle');
+        }, 5000);
+      } else {
+        setCommentSubmitStatus('error');
+      }
+    } catch (err) {
+      console.error('Comment submission error:', err);
+      setCommentSubmitStatus('error');
+    } finally {
+      setIsSubmittingComment(false);
     }
   };
 
@@ -538,6 +603,130 @@ export default function ArticlePage() {
                     </div>
                   </div>
                 </Card>
+
+                {/* Comments Section */}
+                <div className="mb-12">
+                  <h3 className="text-2xl font-bold text-navy-900 mb-6 flex items-center gap-2">
+                    <MessageCircle className="w-6 h-6 text-teal-600" />
+                    Comments ({comments.length})
+                  </h3>
+
+                  {/* Comment Form */}
+                  <Card className="p-6 md:p-8 mb-8 bg-gray-50">
+                    <h4 className="text-lg font-bold text-navy-900 mb-4">Leave a Comment</h4>
+                    <form onSubmit={handleCommentSubmit} className="space-y-4">
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <label htmlFor="comment-name" className="block text-sm font-medium text-gray-700 mb-2">
+                            Name *
+                          </label>
+                          <input
+                            type="text"
+                            id="comment-name"
+                            required
+                            value={commentForm.name}
+                            onChange={(e) => setCommentForm(prev => ({ ...prev, name: e.target.value }))}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                            placeholder="Your name"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="comment-email" className="block text-sm font-medium text-gray-700 mb-2">
+                            Email * (will not be published)
+                          </label>
+                          <input
+                            type="email"
+                            id="comment-email"
+                            required
+                            value={commentForm.email}
+                            onChange={(e) => setCommentForm(prev => ({ ...prev, email: e.target.value }))}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                            placeholder="your@email.com"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label htmlFor="comment-content" className="block text-sm font-medium text-gray-700 mb-2">
+                          Comment *
+                        </label>
+                        <textarea
+                          id="comment-content"
+                          required
+                          rows={4}
+                          value={commentForm.content}
+                          onChange={(e) => setCommentForm(prev => ({ ...prev, content: e.target.value }))}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent resize-none"
+                          placeholder="Share your thoughts..."
+                        />
+                      </div>
+
+                      {commentSubmitStatus === 'success' && (
+                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
+                          ✓ Thank you! Your comment has been submitted and is pending approval.
+                        </div>
+                      )}
+
+                      {commentSubmitStatus === 'error' && (
+                        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+                          ✗ Failed to submit comment. Please try again.
+                        </div>
+                      )}
+
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        disabled={isSubmittingComment}
+                        className="w-full md:w-auto"
+                      >
+                        {isSubmittingComment ? (
+                          <>
+                            <Spinner size="sm" />
+                            <span className="ml-2">Submitting...</span>
+                          </>
+                        ) : (
+                          'Submit Comment'
+                        )}
+                      </Button>
+                    </form>
+                  </Card>
+
+                  {/* Comments List */}
+                  {comments.length > 0 ? (
+                    <div className="space-y-6">
+                      {comments.map((comment) => (
+                        <Card key={comment.id} className="p-6 hover:shadow-lg transition-shadow">
+                          <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0">
+                              <User className="w-6 h-6 text-teal-600" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between mb-2">
+                                <div>
+                                  <div className="font-bold text-navy-900">{comment.name}</div>
+                                  <div className="text-sm text-gray-500">
+                                    {new Date(comment.createdAt).toLocaleDateString('en-US', {
+                                      month: 'long',
+                                      day: 'numeric',
+                                      year: 'numeric',
+                                      hour: 'numeric',
+                                      minute: '2-digit',
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
+                              <p className="text-gray-700 leading-relaxed">{comment.content}</p>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <Card className="p-8 text-center bg-gray-50">
+                      <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                      <p className="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+                    </Card>
+                  )}
+                </div>
               </div>
 
               {/* Table of Contents Sidebar */}
