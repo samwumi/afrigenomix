@@ -47,11 +47,37 @@ const TOPIC_POOL = [
  */
 export async function POST(request: NextRequest) {
   try {
-    const auth = await verifyAuth(request);
-    if (!auth.authenticated || !auth.user || auth.user.role !== 'ADMIN') {
+    // Simple auth check like other endpoints
+    const token = request.headers.get('authorization')?.replace('Bearer ', '');
+    if (!token) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
+        { success: false, error: 'Unauthorized - No token provided' },
         { status: 401 }
+      );
+    }
+
+    // Verify token
+    const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+    let userId: string;
+    let userRole: string;
+    
+    try {
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
+      userId = decoded.userId;
+      userRole = decoded.role;
+    } catch (error) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized - Invalid token' },
+        { status: 401 }
+      );
+    }
+
+    // Check admin role
+    if (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden - Admin access required' },
+        { status: 403 }
       );
     }
 
@@ -296,11 +322,35 @@ Respond with ONLY valid JSON:
  */
 export async function GET(request: NextRequest) {
   try {
-    const auth = await verifyAuth(request);
-    if (!auth.authenticated || !auth.user || auth.user.role !== 'ADMIN') {
+    // Simple auth check like other endpoints
+    const token = request.headers.get('authorization')?.replace('Bearer ', '');
+    if (!token) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized - Admin access required' },
+        { success: false, error: 'Unauthorized - No token provided' },
         { status: 401 }
+      );
+    }
+
+    // Verify token
+    const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+    let userRole: string;
+    
+    try {
+      const jwt = require('jsonwebtoken');
+      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
+      userRole = decoded.role;
+    } catch (error) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized - Invalid token' },
+        { status: 401 }
+      );
+    }
+
+    // Check admin role
+    if (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden - Admin access required' },
+        { status: 403 }
       );
     }
 
