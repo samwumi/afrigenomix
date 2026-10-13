@@ -299,10 +299,13 @@ export async function GET(request: NextRequest) {
     const user = await verifyAuth(request);
     if (!user || user.role !== 'ADMIN') {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
+        { success: false, error: 'Unauthorized - Admin access required' },
         { status: 401 }
       );
     }
+
+    console.log('Fetching auto-content info...');
+    console.log('Total topics in pool:', TOPIC_POOL.length);
 
     // Get recently used topics
     const recentArticles = await prisma.article.findMany({
@@ -314,8 +317,13 @@ export async function GET(request: NextRequest) {
       select: { title: true, category: true },
     });
 
+    console.log('Recent articles found:', recentArticles.length);
+
     const usedTopics = new Set(recentArticles.map(a => a.title));
     const availableTopics = TOPIC_POOL.filter(t => !usedTopics.has(t.topic));
+
+    console.log('Used topics:', usedTopics.size);
+    console.log('Available topics:', availableTopics.length);
 
     // Category distribution
     const categoryCount: Record<string, number> = {};
@@ -340,7 +348,11 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Get auto-content info error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to get info' },
+      { 
+        success: false, 
+        error: 'Failed to get info',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }

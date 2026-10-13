@@ -38,12 +38,18 @@ export default function AIAutomationPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (res.ok) {
-        const data = await res.json();
+      const data = await res.json();
+      console.log('API Response:', data);
+
+      if (res.ok && data.success) {
         setInfo(data.data);
+      } else {
+        console.error('API Error:', data.error);
+        alert(`Error loading info: ${data.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Failed to load info:', error);
+      alert('Network error. Please check your connection.');
     } finally {
       setLoading(false);
     }
