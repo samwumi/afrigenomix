@@ -38,6 +38,7 @@ export default function NewArticlePage() {
     authorTitle: '',
     authorBio: '',
     authorEmail: '',
+    scheduledPublishAt: '',
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -149,6 +150,13 @@ export default function NewArticlePage() {
         finalFormData.authorEmail = `${emailName}@afrigenomix.com`;
       }
 
+      // Determine final status based on scheduling
+      let finalStatus = status;
+      if (formData.scheduledPublishAt && new Date(formData.scheduledPublishAt) > new Date()) {
+        // If scheduled for future, keep as DRAFT until scheduled time
+        finalStatus = 'DRAFT';
+      }
+
       const response = await fetch('/api/admin/articles', {
         method: 'POST',
         headers: {
@@ -157,8 +165,9 @@ export default function NewArticlePage() {
         },
         body: JSON.stringify({
           ...finalFormData,
-          status,
-          publishedAt: status === 'PUBLISHED' ? new Date().toISOString() : null,
+          status: finalStatus,
+          publishedAt: finalStatus === 'PUBLISHED' ? new Date().toISOString() : null,
+          scheduledPublishAt: formData.scheduledPublishAt || null,
         }),
       });
 
@@ -606,6 +615,32 @@ And much more!"
                         </option>
                       ))}
                     </select>
+                  </div>
+                </Card>
+
+                {/* Schedule Publishing */}
+                <Card>
+                  <div className="p-6">
+                    <label className="block text-sm font-semibold text-navy-900 mb-2">
+                      📅 Schedule Publishing (Optional)
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={formData.scheduledPublishAt}
+                      onChange={(e) => setFormData({ ...formData, scheduledPublishAt: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      min={new Date().toISOString().slice(0, 16)}
+                    />
+                    <p className="text-sm text-gray-600 mt-2">
+                      {formData.scheduledPublishAt ? (
+                        <>
+                          📆 Will publish on{' '}
+                          <strong>{new Date(formData.scheduledPublishAt).toLocaleString()}</strong>
+                        </>
+                      ) : (
+                        'Leave blank to publish immediately'
+                      )}
+                    </p>
                   </div>
                 </Card>
 
