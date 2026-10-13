@@ -496,6 +496,12 @@ export default function AdminDashboard() {
                   <h3 className="text-lg font-bold text-navy-900">Quick Actions</h3>
                 </div>
                 <div className="p-6 space-y-2">
+                  <Link href="/admin/ai-automation">
+                    <Button variant="outline" size="sm" className="w-full justify-start">
+                      <Bot className="w-4 h-4 mr-2" />
+                      AI Automation (New!)
+                    </Button>
+                  </Link>
                   <Link href="/admin/ai-content">
                     <Button variant="outline" size="sm" className="w-full justify-start">
                       <Bot className="w-4 h-4 mr-2" />
