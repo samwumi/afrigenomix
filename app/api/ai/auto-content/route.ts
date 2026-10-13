@@ -47,8 +47,8 @@ const TOPIC_POOL = [
  */
 export async function POST(request: NextRequest) {
   try {
-    const user = await verifyAuth(request);
-    if (!user || user.role !== 'ADMIN') {
+    const auth = await verifyAuth(request);
+    if (!auth.authenticated || !auth.user || auth.user.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -296,8 +296,8 @@ Respond with ONLY valid JSON:
  */
 export async function GET(request: NextRequest) {
   try {
-    const user = await verifyAuth(request);
-    if (!user || user.role !== 'ADMIN') {
+    const auth = await verifyAuth(request);
+    if (!auth.authenticated || !auth.user || auth.user.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: 'Unauthorized - Admin access required' },
         { status: 401 }
