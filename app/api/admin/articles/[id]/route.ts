@@ -176,9 +176,46 @@ export async function PUT(
       data: updateData,
     });
 
+    // Auto-post to Facebook if article is being published
+    const wasPublished = existingArticle.status !== 'PUBLISHED' && status === 'PUBLISHED';
+    let facebookPostResult = null;
+
+    if (wasPublished) {
+      try {
+        // Call Facebook posting API in background
+        const fbResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/social/facebook-post`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ articleId: id }),
+        });
+
+        const fbResult = await fbResponse.json();
+        if (fbResult.success) {
+          facebookPostResult = {
+            posted: true,
+            postUrl: fbResult.data?.postUrl,
+          };
+          console.log('✅ Auto-posted to Facebook:', fbResult.data?.postUrl);
+        } else {
+          console.warn('⚠️ Facebook auto-post failed:', fbResult.error);
+        }
+      } catch (fbError) {
+        console.error('❌ Facebook auto-post error:', fbError);
+        // Don't fail the article update if Facebook fails
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      data: { article },
+      data: { 
+        article,
+        ...(facebookPostResult && { facebook: facebookPostResult }),
+      },
+      ...(facebookPostResult?.posted && { 
+        message: 'Article published and posted to Facebook!' 
+      }),
     });
   } catch (error) {
     console.error('Article update error:', error);

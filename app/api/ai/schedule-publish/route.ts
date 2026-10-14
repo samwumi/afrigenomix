@@ -87,8 +87,10 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Publish them
+    // Publish them and auto-post to Facebook
     const published = [];
+    const facebookPosts = [];
+    
     for (const article of articlesToPublish) {
       const updated = await prisma.article.update({
         where: { id: article.id },
@@ -99,6 +101,26 @@ export async function GET(request: NextRequest) {
         },
       });
       published.push(updated);
+
+      // Auto-post to Facebook
+      try {
+        const fbResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/social/facebook-post`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ articleId: article.id }),
+        });
+
+        const fbResult = await fbResponse.json();
+        if (fbResult.success) {
+          facebookPosts.push({
+            articleTitle: article.title,
+            postUrl: fbResult.data?.postUrl,
+          });
+          console.log(`✅ Auto-posted "${article.title}" to Facebook`);
+        }
+      } catch (fbError) {
+        console.error(`❌ Facebook auto-post failed for "${article.title}":`, fbError);
+      }
     }
 
     // Get all remaining scheduled articles
@@ -129,8 +151,9 @@ export async function GET(request: NextRequest) {
       data: {
         published: published.length,
         scheduled: scheduled,
+        ...(facebookPosts.length > 0 && { facebookPosts }),
       },
-      message: `Published ${published.length} article(s)`,
+      message: `Published ${published.length} article(s)${facebookPosts.length > 0 ? ` and posted ${facebookPosts.length} to Facebook` : ''}`,
     });
   } catch (error) {
     console.error('Auto-publish error:', error);
