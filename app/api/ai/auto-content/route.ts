@@ -254,7 +254,7 @@ Respond with ONLY valid JSON:
             slug: finalSlug,
             content: articleData.content,
             excerpt: articleData.excerpt,
-            category: category,
+            category: category as any,
             authorId: aiAuthor.id,
             metaTitle: articleData.metaTitle,
             metaDescription: articleData.metaDescription,

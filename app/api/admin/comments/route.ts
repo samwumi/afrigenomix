@@ -8,8 +8,8 @@ import { verifyAuth } from '@/lib/auth';
  */
 export async function GET(request: NextRequest) {
   try {
-    const user = await verifyAuth(request);
-    if (!user || user.role !== 'ADMIN') {
+    const { authenticated, user } = await verifyAuth(request);
+    if (!authenticated || user?.role !== 'ADMIN') {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
