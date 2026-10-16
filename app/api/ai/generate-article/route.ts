@@ -161,8 +161,8 @@ Respond ONLY with valid JSON in this exact format:
         data: {
           name: 'Afrigenomix Editorial Team',
           email: 'ai@afrigenomix.com',
-          title: 'AI Content Generator',
-          bio: 'Automated content generation powered by AI',
+          title: '',
+          bio: 'The Afrigenomix editorial team brings you the latest insights in African genomics and personalized medicine.',
           isActive: true,
         },
       });
