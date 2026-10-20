@@ -153,6 +153,11 @@ export async function POST(request: NextRequest) {
 
     // Calculate publish dates
     const baseDate = startDate ? new Date(startDate) : new Date();
+    // Start from tomorrow instead of today to avoid immediate publishing
+    baseDate.setDate(baseDate.getDate() + 1);
+    // Set to 9 AM for consistent publishing time
+    baseDate.setHours(9, 0, 0, 0);
+    
     const publishDates: Date[] = [];
     
     for (let i = 0; i < count; i++) {
