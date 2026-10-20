@@ -64,13 +64,19 @@ export async function POST(request: NextRequest) {
 /**
  * GET /api/ai/schedule-publish
  * Get all scheduled articles and publish those whose time has come
+ * Note: This endpoint allows cron job access without authentication
  */
 export async function GET(request: NextRequest) {
   try {
-    const { authenticated, user } = await verifyAuth(request);
-    if (!authenticated || user?.role !== 'ADMIN') {
+    // Allow cron jobs to access this endpoint
+    // Check for optional cron secret for added security
+    const cronSecret = request.headers.get('x-cron-secret');
+    const expectedSecret = process.env.CRON_SECRET;
+    
+    // If CRON_SECRET is set, verify it; otherwise allow public access for cron
+    if (expectedSecret && cronSecret !== expectedSecret) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
+        { success: false, error: 'Unauthorized cron access' },
         { status: 401 }
       );
     }
