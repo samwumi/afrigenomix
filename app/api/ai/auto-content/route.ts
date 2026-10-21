@@ -39,6 +39,16 @@ const TOPIC_POOL = [
   { topic: 'Why Paternity Fraud Should Be Criminalized', category: 'ADVOCACY', tone: 'professional' },
   { topic: 'DNA Testing Access Across Africa: Current State', category: 'ADVOCACY', tone: 'professional' },
   { topic: 'Advocating for Affordable DNA Testing', category: 'ADVOCACY', tone: 'conversational' },
+  
+  // Public Health
+  { topic: 'Genetic Testing for Disease Prevention in Africa', category: 'PUBLIC_HEALTH', tone: 'professional' },
+  { topic: 'How DNA Testing Can Improve Healthcare Outcomes', category: 'PUBLIC_HEALTH', tone: 'friendly' },
+  { topic: 'Pharmacogenomics: Personalizing Medicine with DNA', category: 'PUBLIC_HEALTH', tone: 'technical' },
+  { topic: 'Genetic Screening for Common African Diseases', category: 'PUBLIC_HEALTH', tone: 'professional' },
+  { topic: 'The Role of Genomics in African Public Health', category: 'PUBLIC_HEALTH', tone: 'professional' },
+  { topic: 'Understanding Sickle Cell Disease Through Genetics', category: 'PUBLIC_HEALTH', tone: 'friendly' },
+  { topic: 'Genetic Risk Factors for Diabetes in African Populations', category: 'PUBLIC_HEALTH', tone: 'professional' },
+  { topic: 'DNA Testing for Cancer Prevention and Early Detection', category: 'PUBLIC_HEALTH', tone: 'professional' },
 ];
 
 /**

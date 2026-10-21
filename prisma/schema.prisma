@@ -683,6 +683,7 @@ enum ArticleCategory {
   CASE_STUDIES
   SCIENCE
   NEWS
+  PUBLIC_HEALTH
 }
 
 enum CampaignStatus {
