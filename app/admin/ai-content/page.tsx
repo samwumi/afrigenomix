@@ -27,6 +27,7 @@ export default function AIContentPage() {
     { value: 'ADVOCACY', label: 'Advocacy' },
     { value: 'PATERNITY_FRAUD', label: 'Paternity Fraud' },
     { value: 'LEGISLATION', label: 'Legislation' },
+    { value: 'PUBLIC_HEALTH', label: 'Public Health' },
   ];
 
   const tones = [
@@ -45,6 +46,10 @@ export default function AIContentPage() {
     'Privacy and Security in Genetic Testing',
     'Cost of DNA Testing in Africa: Complete Guide',
     'What to Expect During DNA Sample Collection',
+    'Ebola Outbreak: Genetic Factors and Public Health Response',
+    'Genetic Testing for Disease Prevention in Africa',
+    'Pharmacogenomics: Personalizing Medicine with DNA',
+    'Understanding Sickle Cell Disease Through Genetics',
   ];
 
   const handleGenerate = async (e: React.FormEvent) => {
