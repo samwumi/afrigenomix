@@ -256,6 +256,30 @@ Respond with ONLY valid JSON:
 
         const finalSlug = existingArticle ? `${slug}-${Date.now()}` : slug;
 
+        // Fetch a relevant image from Unsplash (FREE!)
+        let featuredImage = null;
+        try {
+          // Create search query based on topic keywords
+          const searchQuery = category.toLowerCase().replace(/_/g, ' ') + ' science health';
+          
+          const unsplashResponse = await fetch(
+            `https://api.unsplash.com/photos/random?query=${encodeURIComponent(searchQuery)}&orientation=landscape`,
+            {
+              headers: {
+                'Authorization': 'Client-ID 8-YfFQGP0zCy2Dj7OHQZXyOq6KVEJv6hVYsZ0MKvXJ8'
+              }
+            }
+          );
+
+          if (unsplashResponse.ok) {
+            const imageData = await unsplashResponse.json();
+            featuredImage = imageData.urls.regular; // High quality image URL
+            console.log(`✅ Found image for "${topic}"`);
+          }
+        } catch (imageError) {
+          console.log(`⚠️ Could not fetch image for "${topic}", continuing without image`);
+        }
+
         // Determine status
         const now = new Date();
         const status = publishAt > now ? 'DRAFT' : 'PUBLISHED';
@@ -271,6 +295,7 @@ Respond with ONLY valid JSON:
             excerpt: articleData.excerpt,
             category: category as any,
             authorId: aiAuthor.id,
+            featuredImage: featuredImage,
             metaTitle: articleData.metaTitle,
             metaDescription: articleData.metaDescription,
             metaKeywords: articleData.metaKeywords,

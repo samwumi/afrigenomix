@@ -168,6 +168,29 @@ Respond ONLY with valid JSON in this exact format:
       });
     }
 
+    // Fetch a relevant image from Unsplash (FREE!)
+    let featuredImage = null;
+    try {
+      const searchQuery = topic || category.toLowerCase().replace(/_/g, ' ') + ' science health';
+      
+      const unsplashResponse = await fetch(
+        `https://api.unsplash.com/photos/random?query=${encodeURIComponent(searchQuery)}&orientation=landscape`,
+        {
+          headers: {
+            'Authorization': 'Client-ID 8-YfFQGP0zCy2Dj7OHQZXyOq6KVEJv6hVYsZ0MKvXJ8'
+          }
+        }
+      );
+
+      if (unsplashResponse.ok) {
+        const imageData = await unsplashResponse.json();
+        featuredImage = imageData.urls.regular;
+        console.log(`✅ Found image for "${topic}"`);
+      }
+    } catch (imageError) {
+      console.log(`⚠️ Could not fetch image, continuing without image`);
+    }
+
     // Create article in database
     const article = await prisma.article.create({
       data: {
@@ -177,6 +200,7 @@ Respond ONLY with valid JSON in this exact format:
         excerpt: articleData.excerpt,
         category: category,
         authorId: aiAuthor.id,
+        featuredImage: featuredImage,
         metaTitle: articleData.metaTitle,
         metaDescription: articleData.metaDescription,
         metaKeywords: articleData.metaKeywords,
