@@ -18,6 +18,7 @@ const CATEGORIES = [
   { value: 'PATERNITY_FRAUD', label: 'Paternity Fraud' },
   { value: 'ADVOCACY', label: 'Advocacy' },
   { value: 'LEGISLATION', label: 'Legislation' },
+  { value: 'PUBLIC_HEALTH', label: 'Public Health' },
 ];
 
 export default function EditArticlePage() {

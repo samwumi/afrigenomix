@@ -46,6 +46,7 @@ const CATEGORIES = [
   { value: 'PATERNITY_FRAUD', label: 'Paternity Fraud', color: 'bg-red-100 text-red-700 border-red-200' },
   { value: 'ADVOCACY', label: 'Advocacy', color: 'bg-orange-100 text-orange-700 border-orange-200' },
   { value: 'LEGISLATION', label: 'Legislation', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+  { value: 'PUBLIC_HEALTH', label: 'Public Health', color: 'bg-green-100 text-green-700 border-green-200' },
 ];
 
 export default function BlogPage() {
