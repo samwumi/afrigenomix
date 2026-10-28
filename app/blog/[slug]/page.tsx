@@ -181,12 +181,14 @@ export default function ArticlePage() {
   const shareArticle = (platform: string) => {
     const url = window.location.href;
     const title = article?.title || '';
+    const text = article?.excerpt || title;
     
     const shareUrls: Record<string, string> = {
+      whatsapp: `https://wa.me/?text=${encodeURIComponent(title + '\n\n' + text + '\n\n' + url)}`,
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
       twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`,
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
-      email: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`,
+      email: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(text + '\n\n' + url)}`,
     };
 
     if (shareUrls[platform]) {
@@ -466,6 +468,15 @@ export default function ArticlePage() {
                 {showShareMenu && (
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl border border-gray-200 z-20 overflow-hidden">
                     <div className="p-2">
+                      <button
+                        onClick={() => shareArticle('whatsapp')}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-green-50 rounded-lg transition-colors text-left group"
+                      >
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                          <Share2 className="w-4 h-4 text-white" />
+                        </div>
+                        <span className="font-medium text-gray-900 group-hover:text-green-600">WhatsApp</span>
+                      </button>
                       <button
                         onClick={() => shareArticle('facebook')}
                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 rounded-lg transition-colors text-left group"
