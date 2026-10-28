@@ -73,6 +73,7 @@ const CATEGORIES: Record<string, { label: string; color: string }> = {
   PATERNITY_FRAUD: { label: 'Paternity Fraud', color: 'bg-red-100 text-red-700 border-red-200' },
   ADVOCACY: { label: 'Advocacy', color: 'bg-orange-100 text-orange-700 border-orange-200' },
   LEGISLATION: { label: 'Legislation', color: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+  PUBLIC_HEALTH: { label: 'Public Health', color: 'bg-green-100 text-green-700 border-green-200' },
 };
 
 export default function ArticlePage() {
@@ -256,6 +257,10 @@ export default function ArticlePage() {
   // Prepare SEO data
   const seoTitle = article.metaTitle || article.title;
   const seoDescription = article.metaDescription || article.excerpt || `Read ${article.title} on Afrigenomix`;
+  const absoluteImageUrl = article.featuredImage 
+    ? (article.featuredImage.startsWith('http') ? article.featuredImage : `https://afrigenomix.com${article.featuredImage}`)
+    : 'https://afrigenomix.com/og-image.jpg';
+  
   const keywords = [
     'DNA testing',
     'Africa',
@@ -271,7 +276,7 @@ export default function ArticlePage() {
     '@type': 'Article',
     headline: article.title,
     description: article.excerpt || article.title,
-    image: article.featuredImage || 'https://afrigenomix.com/og-image.jpg',
+    image: absoluteImageUrl,
     datePublished: article.publishedAt,
     dateModified: article.publishedAt,
     author: article.author ? {
@@ -303,7 +308,7 @@ export default function ArticlePage() {
         title={seoTitle}
         description={seoDescription}
         canonical={`https://afrigenomix.com/blog/${article.slug}`}
-        ogImage={article.featuredImage || 'https://afrigenomix.com/og-image.jpg'}
+        ogImage={absoluteImageUrl}
         ogImageWidth="1200"
         ogImageHeight="630"
         ogImageAlt={article.title}
