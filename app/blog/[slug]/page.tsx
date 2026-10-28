@@ -104,6 +104,46 @@ export default function ArticlePage() {
     }
   }, [params.slug]);
 
+  // Update meta tags when article loads
+  useEffect(() => {
+    if (article) {
+      const title = article.metaTitle || article.title;
+      const description = article.metaDescription || article.excerpt || article.title;
+      const imageUrl = article.featuredImage || 'https://afrigenomix.com/og-image.jpg';
+      const url = `https://afrigenomix.com/blog/${article.slug}`;
+
+      // Update document title
+      document.title = `${title} | Afrigenomix`;
+
+      // Update or create meta tags
+      const setMetaTag = (property: string, content: string, isProperty = true) => {
+        const attr = isProperty ? 'property' : 'name';
+        let tag = document.querySelector(`meta[${attr}="${property}"]`) as HTMLMetaElement;
+        if (!tag) {
+          tag = document.createElement('meta');
+          tag.setAttribute(attr, property);
+          document.head.appendChild(tag);
+        }
+        tag.content = content;
+      };
+
+      // Open Graph tags
+      setMetaTag('og:title', title);
+      setMetaTag('og:description', description);
+      setMetaTag('og:image', imageUrl);
+      setMetaTag('og:url', url);
+      setMetaTag('og:type', 'article');
+      setMetaTag('og:site_name', 'Afrigenomix');
+      
+      // Twitter tags
+      setMetaTag('twitter:card', 'summary_large_image', false);
+      setMetaTag('twitter:title', title, false);
+      setMetaTag('twitter:description', description, false);
+      setMetaTag('twitter:image', imageUrl, false);
+      setMetaTag('twitter:site', '@afrigenomix', false);
+    }
+  }, [article]);
+
   const fetchArticle = async (slug: string) => {
     try {
       const response = await fetch(`/api/articles/${slug}`);
